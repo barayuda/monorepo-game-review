@@ -4,9 +4,24 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "node -e \"\"",
-		"build": "node -e \"\"",
+		"dev": "vite",
+		"build": "vite build",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@game-review/contracts": "workspace:*",
+		"@tanstack/react-query": "^5.102.1",
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8",
+		"react-router-dom": "^7.18.2"
+	},
+	"devDependencies": {
+		"@tailwindcss/vite": "^4.3.3",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.4",
+		"@vitejs/plugin-react": "^6.1.0",
+		"tailwindcss": "^4.3.3",
+		"vite": "^8.2.2"
 	}
 }
