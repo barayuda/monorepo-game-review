@@ -1,30 +1,15 @@
 import { Route, Routes, useParams } from 'react-router-dom'
 
-/** Rute halaman aplikasi yang sengaja hanya menyediakan shell sampai fitur katalog dan detail ditambahkan. */
+import { GameListPage } from './pages/game-list-page.js'
+
+/** Rute halaman aplikasi yang memisahkan katalog aktif dari placeholder detail tahap berikutnya. */
 export function AppRouter(): React.ReactNode {
 	return (
 		<Routes>
-			<Route path="/" element={<HomePlaceholder />} />
+			<Route path="/" element={<GameListPage />} />
 			<Route path="/games/:gameId" element={<GameDetailPlaceholder />} />
 			<Route path="*" element={<NotFoundPlaceholder />} />
 		</Routes>
-	)
-}
-
-/** Placeholder katalog yang memberi titik boot stabil untuk fitur daftar game berikutnya. */
-function HomePlaceholder(): React.ReactNode {
-	return (
-		<section className="space-y-3">
-			<p className="text-sm font-semibold uppercase tracking-[0.18em] text-teal-300">
-				Game Review
-			</p>
-			<h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-				Katalog game segera hadir
-			</h1>
-			<p className="max-w-2xl text-slate-300">
-				Pilih game untuk membaca dan menulis ulasan pemain.
-			</p>
-		</section>
 	)
 }
 

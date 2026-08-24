@@ -1,18 +1,22 @@
+import { QueryClientProvider } from '@tanstack/react-query'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 
 import { AppRouter } from '../src/app-router.js'
+import { createAppQueryClient } from '../src/queries/query-client.js'
 
 describe('AppRouter', () => {
-	it('menyediakan placeholder katalog pada rute root', () => {
+	it('menyediakan halaman katalog pada rute root', () => {
 		const html = renderToStaticMarkup(
-			<MemoryRouter initialEntries={['/']}>
-				<AppRouter />
-			</MemoryRouter>,
+			<QueryClientProvider client={createAppQueryClient()}>
+				<MemoryRouter initialEntries={['/']}>
+					<AppRouter />
+				</MemoryRouter>
+			</QueryClientProvider>,
 		)
 
-		expect(html).toContain('Katalog game segera hadir')
+		expect(html).toContain('Memuat daftar game')
 	})
 
 	it('menyediakan placeholder detail untuk game yang dipilih', () => {
