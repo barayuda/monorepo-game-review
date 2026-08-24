@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { GameService } from '../src/modules/games/game-service.js'
+import type { Game } from '../src/modules/games/game.js'
 import { InMemoryGameRepository } from '../src/modules/games/in-memory-game-repository.js'
 import { ApplicationNotFoundError } from '../src/shared/application-not-found-error.js'
 
@@ -62,6 +63,54 @@ describe('GameService', () => {
 		expect(thrownError).toMatchObject({
 			code: 'NOT_FOUND',
 			message: "Game with id 'unknown-game' was not found",
+		})
+	})
+})
+
+describe('InMemoryGameRepository', () => {
+	it('does not retain mutable caller seed records', () => {
+		const games: Game[] = [
+			{
+				id: 'elden-ring',
+				title: 'Elden Ring',
+				description: 'Explore the Lands Between.',
+				genre: 'Action RPG',
+				platform: 'PlayStation 5',
+			},
+		]
+		const repository = new InMemoryGameRepository(games)
+
+		games[0].title = 'Changed by caller'
+
+		expect(repository.findById('elden-ring')).toMatchObject({
+			title: 'Elden Ring',
+		})
+	})
+
+	it('does not expose mutable records from list and single-game reads', () => {
+		const repository = new InMemoryGameRepository([
+			{
+				id: 'elden-ring',
+				title: 'Elden Ring',
+				description: 'Explore the Lands Between.',
+				genre: 'Action RPG',
+				platform: 'PlayStation 5',
+			},
+		])
+
+		const listedGame = repository.findAll()[0]
+		listedGame.title = 'Changed from list'
+		const foundGame = repository.findById('elden-ring')
+
+		if (!foundGame) {
+			throw new Error('Expected seeded game to be found')
+		}
+
+		foundGame.title = 'Changed from lookup'
+
+		expect(repository.findAll()[0]).toMatchObject({ title: 'Elden Ring' })
+		expect(repository.findById('elden-ring')).toMatchObject({
+			title: 'Elden Ring',
 		})
 	})
 })

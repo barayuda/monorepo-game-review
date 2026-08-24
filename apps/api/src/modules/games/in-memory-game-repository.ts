@@ -7,14 +7,16 @@ export class InMemoryGameRepository implements GameRepository {
 	private readonly games: readonly Game[]
 
 	constructor(games: readonly Game[] = seededGames) {
-		this.games = games
+		this.games = games.map((game) => ({ ...game }))
 	}
 
 	findAll(): Game[] {
-		return [...this.games]
+		return this.games.map((game) => ({ ...game }))
 	}
 
 	findById(id: string): Game | undefined {
-		return this.games.find((game) => game.id === id)
+		const game = this.games.find((candidate) => candidate.id === id)
+
+		return game ? { ...game } : undefined
 	}
 }
