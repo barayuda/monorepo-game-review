@@ -2,6 +2,14 @@
 
 [English](README.md) | Bahasa Indonesia
 
+## Mulai Cepat untuk Reviewer
+
+```bash
+docker compose up --build
+```
+
+Buka <http://localhost:8080>. Lihat [Mulai Cepat dengan Docker](#6-mulai-cepat-dengan-docker) untuk prasyarat, URL service, dan petunjuk menghentikan aplikasi.
+
 ## 1. Ringkasan
 
 Game Review adalah aplikasi full-stack kecil untuk menelusuri katalog game berisi data awal, membaca ulasan pemain, dan mengirim ulasan yang terdiri dari nama, teks, serta rating 1 sampai 5. Frontend dan backend merupakan aplikasi TypeScript terpisah yang terhubung melalui REST API.

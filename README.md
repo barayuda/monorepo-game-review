@@ -2,6 +2,14 @@
 
 English | [Bahasa Indonesia](README.id.md)
 
+## Reviewer Quick Start
+
+```bash
+docker compose up --build
+```
+
+Open <http://localhost:8080>. See [Quick Start with Docker](#6-quick-start-with-docker) for prerequisites, service URLs, and shutdown instructions.
+
 ## 1. Overview
 
 Game Review is a small full-stack application for browsing a seeded game catalogue, reading player reviews, and submitting a review with a name, text, and rating from 1 to 5. The frontend and backend are separate TypeScript applications connected through a REST API.
