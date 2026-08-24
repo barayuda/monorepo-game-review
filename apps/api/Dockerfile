@@ -14,7 +14,7 @@ COPY packages/contracts/package.json packages/contracts/package.json
 
 FROM workspace AS production-dependencies
 
-RUN pnpm --filter @game-review/api... install --prod --frozen-lockfile
+RUN pnpm --filter @game-review/api... install --prod --frozen-lockfile --ignore-scripts
 
 FROM workspace AS build
 
