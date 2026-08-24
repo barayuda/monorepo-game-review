@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { GameListPage } from './pages/game-list-page.js'
 import { GameDetailPage } from './pages/game-detail-page.js'
 
-/** Rute halaman aplikasi yang memisahkan katalog aktif dari placeholder detail tahap berikutnya. */
+/** Memetakan katalog, detail game aktif, dan fallback URL tak dikenal ke halaman masing-masing. */
 export function AppRouter(): React.ReactNode {
 	return (
 		<Routes>

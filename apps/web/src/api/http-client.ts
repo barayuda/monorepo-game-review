@@ -31,8 +31,11 @@ async function toApiClientError(response: Response): Promise<ApiClientError> {
 
 /** Gerbang tunggal HTTP browser untuk seluruh modul API aplikasi. */
 class HttpClient {
-	async get<TResponse>(path: string): Promise<TResponse> {
-		return this.request<TResponse>(path)
+	async get<TResponse>(
+		path: string,
+		init?: Pick<RequestInit, 'signal'>,
+	): Promise<TResponse> {
+		return this.request<TResponse>(path, init)
 	}
 
 	async post<TResponse>(path: string, body: unknown): Promise<TResponse> {

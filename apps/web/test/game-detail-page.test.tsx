@@ -3,7 +3,7 @@ import type {
 	GameDto,
 	ReviewDto,
 } from '@game-review/contracts'
-import { QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AppRouter } from '../src/app-router.js'
 import { createAppQueryClient } from '../src/queries/query-client.js'
+import { reviewQueryKeys } from '../src/queries/query-keys.js'
 
 const game: GameDto = {
 	id: 'laut-senja',
@@ -73,14 +74,18 @@ function stubDetailApi({
 	)
 }
 
-function renderGameDetail(): void {
+function renderGameDetail(): QueryClient {
+	const queryClient = createAppQueryClient()
+
 	render(
-		<QueryClientProvider client={createAppQueryClient()}>
+		<QueryClientProvider client={queryClient}>
 			<MemoryRouter initialEntries={['/games/laut-senja']}>
 				<AppRouter />
 			</MemoryRouter>
 		</QueryClientProvider>,
 	)
+
+	return queryClient
 }
 
 async function waitForDetail(): Promise<void> {
@@ -355,6 +360,69 @@ describe('halaman detail game', () => {
 		expect(items[0]?.textContent).toContain('Nadia')
 		expect(items[0]?.textContent).toContain('Ulasan terbaru dari saya.')
 		expect(items[1]?.textContent).toContain(existingReview.reviewerName)
+	})
+
+	it('mempertahankan ulasan baru ketika GET lama selesai setelah POST', async () => {
+		// Menangkap regresi ketika hasil GET yang dimulai lebih dahulu menimpa DTO mutation di cache.
+		let resolveStaleReviews: (response: Response) => void = () => undefined
+		let staleTransportSettled = false
+		const staleReviewsRequest = new Promise<Response>((resolve) => {
+			resolveStaleReviews = resolve
+		})
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((input: string | URL | Request, init?: RequestInit) => {
+				const url = String(input)
+				if (init?.method === 'POST') {
+					return Promise.resolve(
+						jsonResponse(
+							{
+								id: 'review-new',
+								gameId: game.id,
+								reviewerName: 'Nadia',
+								text: 'Ulasan yang harus bertahan.',
+								rating: 5,
+								createdAt: '2026-08-24T10:00:00.000Z',
+							} satisfies ReviewDto,
+							201,
+						),
+					)
+				}
+
+				return url.endsWith('/reviews')
+					? staleReviewsRequest.then((response) => {
+							staleTransportSettled = true
+							return response
+						})
+					: Promise.resolve(jsonResponse(game))
+			}),
+		)
+		const queryClient = renderGameDetail()
+		await waitForDetail()
+		const user = userEvent.setup()
+
+		await fillReviewForm(user, {
+			name: 'Nadia',
+			text: 'Ulasan yang harus bertahan.',
+			rating: 5,
+		})
+		await user.click(screen.getByRole('button', { name: 'Kirim ulasan' }))
+		await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
+		expect(screen.getByRole('listitem').textContent).toContain('Nadia')
+
+		resolveStaleReviews(jsonResponse([existingReview]))
+		await waitFor(() => {
+			expect(staleTransportSettled).toBe(true)
+			expect(
+				queryClient.isFetching({
+					queryKey: reviewQueryKeys.byGameId(game.id),
+				}),
+			).toBe(0)
+		})
+
+		expect(screen.getAllByRole('listitem')).toHaveLength(1)
+		expect(screen.getByRole('listitem').textContent).toContain('Nadia')
+		expect(screen.queryByText(existingReview.text)).toBeNull()
 	})
 
 	it('mengosongkan seluruh field setelah pengiriman berhasil', async () => {

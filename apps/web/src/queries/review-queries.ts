@@ -17,7 +17,7 @@ export const reviewQueries = {
 	byGameId: (gameId: string) =>
 		queryOptions({
 			queryKey: reviewQueryKeys.byGameId(gameId),
-			queryFn: () => reviewsApi.listByGameId(gameId),
+			queryFn: ({ signal }) => reviewsApi.listByGameId(gameId, signal),
 			refetchInterval: 2_000,
 			refetchIntervalInBackground: false,
 		}),
@@ -30,14 +30,13 @@ export function useCreateReviewMutation(gameId: string) {
 	return useMutation({
 		mutationFn: (payload: CreateReviewRequestDto) =>
 			reviewsApi.create(gameId, payload),
-		onSuccess: (createdReview) => {
-			queryClient.setQueryData<ReviewDto[]>(
-				reviewQueryKeys.byGameId(gameId),
-				(currentReviews = []) => [
-					createdReview,
-					...currentReviews.filter((review) => review.id !== createdReview.id),
-				],
-			)
+		onSuccess: async (createdReview) => {
+			const queryKey = reviewQueryKeys.byGameId(gameId)
+			await queryClient.cancelQueries({ exact: true, queryKey })
+			queryClient.setQueryData<ReviewDto[]>(queryKey, (currentReviews = []) => [
+				createdReview,
+				...currentReviews.filter((review) => review.id !== createdReview.id),
+			])
 		},
 	})
 }
