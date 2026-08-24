@@ -11,11 +11,13 @@
 		"dev": "pnpm --parallel --recursive run dev",
 		"build": "pnpm --recursive run build",
 		"test": "pnpm --recursive run test",
+		"test:e2e": "env -u NO_COLOR playwright test",
 		"typecheck": "pnpm --recursive run typecheck",
 		"lint": "eslint . && prettier --check ."
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.2",
+		"@playwright/test": "^1.62.1",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
 		"prettier": "^3.7.4",
