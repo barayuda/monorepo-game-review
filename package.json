@@ -10,6 +10,7 @@
 	"scripts": {
 		"dev": "pnpm --parallel --recursive run dev",
 		"build": "pnpm --recursive run build",
+		"prepare": "husky",
 		"test": "pnpm --recursive run test",
 		"test:e2e": "env -u NO_COLOR playwright test",
 		"test:e2e:install": "env -u NO_COLOR playwright install chromium",
@@ -21,9 +22,18 @@
 		"@playwright/test": "^1.62.1",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
+		"husky": "^9.1.7",
+		"lint-staged": "^17.3.0",
 		"prettier": "^3.7.4",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.47.0",
 		"vitest": "^4.1.11"
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx,mjs,cjs}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.{json,jsonc,yaml,yml,md,css,html}": "prettier --write"
 	}
 }

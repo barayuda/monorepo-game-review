@@ -133,6 +133,14 @@ pnpm test:e2e
 
 Playwright menjalankan proses API dan Vite yang sesungguhnya serta sengaja menolak penggunaan kembali server yang sudah berjalan, sehingga proses lama tidak dapat menghasilkan false positive.
 
+### Git Hook Lokal dan CI
+
+`pnpm install` memasang hook Husky melalui script `prepare`. Sebelum setiap commit, lint-staged menjalankan perbaikan ESLint dan Prettier hanya pada file staged yang didukung; file working tree lain tidak disentuh. Sebelum setiap push, hook menjalankan `pnpm test` dan `pnpm typecheck`. Hook memanggil `corepack pnpm`, sehingga versi pnpm yang digunakan mengikuti versi yang dipin repositori ini.
+
+Playwright sengaja tidak dijalankan oleh hook lokal. Jalankan `pnpm test:e2e` secara eksplisit untuk acceptance release atau melalui workflow CI terpisah. GitHub Actions merupakan gate otoritatif pada setiap push dan pull request serta menjalankan instalasi dependency frozen, lint, typecheck, Vitest, dan build.
+
+Dalam keadaan darurat, `git commit --no-verify` atau `git push --no-verify` dapat melewati hook lokal. **Gunakan hanya untuk membuka hambatan dalam situasi luar biasa: CI dan seluruh gate release tetap wajib, dan pemeriksaan yang dilewati tetap harus dijalankan sebelum integrasi atau release.**
+
 ## 9. REST API
 
 | Method | Path                         | Sukses | Tujuan                                |

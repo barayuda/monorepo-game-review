@@ -133,6 +133,14 @@ pnpm test:e2e
 
 Playwright starts real API and Vite processes and deliberately refuses to reuse existing servers, preventing a stale process from producing a false positive.
 
+### Local Git Hooks and CI
+
+`pnpm install` installs the Husky hooks through the `prepare` script. Before each commit, lint-staged runs ESLint fixes and Prettier only on supported staged files; unrelated working-tree files are left alone. Before each push, the hook runs `pnpm test` and `pnpm typecheck`. The hooks call `corepack pnpm`, so they use the pnpm version pinned by this repository.
+
+Playwright is intentionally excluded from local hooks. Run `pnpm test:e2e` explicitly for release acceptance or in a separate CI workflow. GitHub Actions is the authoritative gate on every push and pull request and runs frozen dependency installation, lint, typecheck, Vitest, and build.
+
+In an emergency, `git commit --no-verify` or `git push --no-verify` bypasses local hooks. **Use this only to unblock an exceptional situation: CI and all release gates remain mandatory, and bypassed checks must still be run before integration or release.**
+
 ## 9. REST API
 
 | Method | Path                         | Success | Purpose                       |
