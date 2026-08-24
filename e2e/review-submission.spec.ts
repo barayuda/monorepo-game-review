@@ -3,8 +3,9 @@ import { expect, test } from '@playwright/test'
 test('pemain dapat mengirim ulasan baru dari detail game tanpa memuat ulang halaman', async ({
 	page,
 }) => {
-	const reviewText =
-		'Peta yang luas membuat setiap penemuan terasa benar-benar berharga.'
+	const runId = crypto.randomUUID()
+	const reviewerName = `Raka E2E ${runId}`
+	const reviewText = `Peta yang luas membuat setiap penemuan terasa benar-benar berharga (${runId}).`
 
 	await page.goto('/')
 	await expect(page.getByRole('heading', { name: 'Elden Ring' })).toBeVisible()
@@ -15,13 +16,18 @@ test('pemain dapat mengirim ulasan baru dari detail game tanpa memuat ulang hala
 
 	const pageLoadTime = await page.evaluate(() => performance.timeOrigin)
 
-	await page.getByLabel('Nama reviewer').fill('Raka E2E')
+	await page.getByLabel('Nama reviewer').fill(reviewerName)
 	await page.getByRole('radio', { name: '5 bintang' }).focus()
 	await page.keyboard.press('Space')
 	await expect(page.getByRole('radio', { name: '5 bintang' })).toBeChecked()
 	await page.getByLabel('Teks ulasan').fill(reviewText)
 	await page.getByRole('button', { name: 'Kirim ulasan' }).click()
 
-	await expect(page.getByText(reviewText, { exact: true })).toBeVisible()
+	const submittedReview = page
+		.getByRole('listitem')
+		.filter({ hasText: reviewerName })
+		.filter({ hasText: reviewText })
+	await expect(submittedReview).toBeVisible()
+	await expect(submittedReview.getByLabel('Rating 5 dari 5')).toBeVisible()
 	expect(await page.evaluate(() => performance.timeOrigin)).toBe(pageLoadTime)
 })

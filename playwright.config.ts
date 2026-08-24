@@ -11,13 +11,13 @@ export default defineConfig({
 		{
 			command: 'pnpm --filter @game-review/api exec tsx src/index.ts',
 			url: 'http://127.0.0.1:3000/health',
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer: false,
 		},
 		{
 			command:
 				'pnpm --filter @game-review/web exec vite --host 127.0.0.1 --port 4173 --strictPort',
 			url: 'http://127.0.0.1:4173',
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer: false,
 		},
 	],
 })
