@@ -362,6 +362,40 @@ describe('API routes', () => {
 		expect(response.json()).toEqual({ status: 'ok' })
 	})
 
+	it('returns the public envelope for an unmatched path', async () => {
+		const app = buildApp()
+		appsToClose.push(app)
+
+		const response = await app.inject({
+			method: 'GET',
+			url: '/api/unknown-path',
+		})
+
+		expect(response.statusCode).toBe(404)
+		expect(response.json()).toEqual({
+			code: 'NOT_FOUND',
+			message: 'Route not found',
+		})
+	})
+
+	it('maps malformed JSON to the public validation error', async () => {
+		const app = buildApp()
+		appsToClose.push(app)
+
+		const response = await app.inject({
+			method: 'POST',
+			url: '/api/games/elden-ring/reviews',
+			headers: { 'content-type': 'application/json' },
+			payload: '{"reviewerName":',
+		})
+
+		expect(response.statusCode).toBe(400)
+		expect(response.json()).toEqual({
+			code: 'VALIDATION_ERROR',
+			message: 'Validation failed',
+		})
+	})
+
 	it('does not leak unexpected failures through the HTTP error envelope', async () => {
 		const app = buildApp()
 		appsToClose.push(app)

@@ -37,7 +37,7 @@ export interface ValidationIssueDto {
 
 /** Envelope kegagalan API yang stabil untuk dikonsumsi semua transport client. */
 export interface ApiErrorDto {
-	code: 'GAME_NOT_FOUND' | 'VALIDATION_ERROR' | 'INTERNAL_ERROR'
+	code: 'NOT_FOUND' | 'GAME_NOT_FOUND' | 'VALIDATION_ERROR' | 'INTERNAL_ERROR'
 	message: string
 	issues?: ValidationIssueDto[]
 }

@@ -22,6 +22,31 @@ export interface BuildAppOptions {
 }
 
 /**
+ * Membatasi respons path yang tidak terdaftar pada kontrak publik tanpa
+ * membocorkan method maupun URL internal Fastify.
+ */
+const routeNotFoundError: ApiErrorDto = {
+	code: 'NOT_FOUND',
+	message: 'Route not found',
+}
+
+/**
+ * Mengenali error parser dan content Fastify yang menandakan request client
+ * tidak dapat diproses, tanpa mengandalkan pesan internal framework.
+ */
+const isFastifyClientRequestError = (
+	error: unknown,
+): error is Error & { statusCode: number } => {
+	return (
+		error instanceof Error &&
+		'statusCode' in error &&
+		typeof error.statusCode === 'number' &&
+		error.statusCode >= 400 &&
+		error.statusCode < 500
+	)
+}
+
+/**
  * Menerjemahkan error aplikasi dan request ke kontrak HTTP tanpa mengekspos
  * pesan atau stack kegagalan internal kepada caller.
  */
@@ -62,6 +87,13 @@ const toHttpError = (
 		}
 	}
 
+	if (isFastifyClientRequestError(error)) {
+		return {
+			statusCode: error.statusCode,
+			body: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+		}
+	}
+
 	return {
 		statusCode: 500,
 		body: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
@@ -87,6 +119,10 @@ export const buildApp = (options: BuildAppOptions = {}) => {
 
 		return reply.status(mappedError.statusCode).send(mappedError.body)
 	})
+
+	app.setNotFoundHandler((_request, reply) =>
+		reply.status(404).send(routeNotFoundError),
+	)
 
 	app.register(gameRoutes(gameService))
 	app.register(reviewRoutes(reviewService))
