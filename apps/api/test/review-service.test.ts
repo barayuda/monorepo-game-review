@@ -79,6 +79,25 @@ describe('ReviewService', () => {
 		},
 	)
 
+	it('trims review input before applying maximum lengths', () => {
+		const reviewerName = 'a'.repeat(80)
+		const text = 'b'.repeat(2000)
+		const service = new ReviewService(
+			new GameService(new InMemoryGameRepository()),
+			new InMemoryReviewRepository(),
+			() => 'review-trimmed-maximum',
+			() => new Date('2025-02-01T12:00:00.000Z'),
+		)
+
+		expect(
+			service.createReview('elden-ring', {
+				reviewerName: `  ${reviewerName}  `,
+				text: `  ${text}  `,
+				rating: 5,
+			}),
+		).toMatchObject({ reviewerName, text, rating: 5 })
+	})
+
 	it("throws a typed not-found error when listing an unknown game's reviews", () => {
 		const service = new ReviewService(
 			new GameService(new InMemoryGameRepository()),
