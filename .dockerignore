@@ -1,8 +1,12 @@
 .git
 .gitignore
+.pnpm-store
+.superpowers
 node_modules
 dist
 coverage
 .env
 .env.*
 *.tsbuildinfo
+**/dist
+**/node_modules

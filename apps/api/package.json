@@ -4,8 +4,9 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "node -e \"\"",
-		"build": "node -e \"\"",
+		"dev": "tsx watch src/index.ts",
+		"build": "tsc",
+		"start": "node dist/index.js",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},
@@ -13,5 +14,9 @@
 		"@game-review/contracts": "workspace:*",
 		"fastify": "^5.12.1",
 		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@types/node": "^24.13.3",
+		"tsx": "^4.23.12"
 	}
 }
