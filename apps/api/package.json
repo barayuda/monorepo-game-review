@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "node -e \"\"",
 		"build": "node -e \"\"",
-		"test": "node -e \"\"",
+		"test": "vitest run --passWithNoTests",
 		"typecheck": "tsc --noEmit"
 	}
 }
