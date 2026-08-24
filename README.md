@@ -1,5 +1,7 @@
 # Game Review
 
+English | [Bahasa Indonesia](README.id.md)
+
 ## 1. Overview
 
 Game Review is a small full-stack application for browsing a seeded game catalogue, reading player reviews, and submitting a review with a name, text, and rating from 1 to 5. The frontend and backend are separate TypeScript applications connected through a REST API.
@@ -233,6 +235,15 @@ curl -X POST http://localhost:3000/api/games/elden-ring/reviews \
 - **Alternatives considered:** Host-only scripts, one combined container, or a cluster orchestrator such as Kubernetes.
 - **Why alternatives were not selected now:** Host scripts expose more machine variance, a combined image blurs deployable boundaries, and cluster orchestration is disproportionate for two local services.
 - **When the decision should be revisited:** Adopt deployment-specific orchestration when production scaling, secrets, rolling releases, or managed health policies are required.
+
+### Queues and Redis
+
+- **Use case / requirement:** Create a review through a synchronous request/response flow and make it visible in a single-process, in-memory deployment.
+- **Decision:** Do not add a message queue or Redis for the current scope.
+- **Why it fits this project:** Review creation completes inside one API request. There are no durable background jobs, asynchronous retries, backpressure, cross-instance coordination, or cache-pressure requirements.
+- **Alternatives considered:** Redis for distributed caching, rate limiting, or sessions, and a durable queue for background processing.
+- **Why alternatives were not selected now:** Either would add deployment, failure-mode, monitoring, and data-lifecycle complexity without solving a present requirement.
+- **When the decision should be revisited:** Revisit when the system needs durable background work, retry/backpressure control, multi-instance coordination, distributed caching/rate limiting/sessions, or measured load that justifies the operational cost.
 
 ## 11. Testing Strategy
 
