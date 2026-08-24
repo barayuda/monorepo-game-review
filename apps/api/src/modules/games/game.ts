@@ -1,3 +1,6 @@
+/**
+ * Representasi game yang dibagikan antara use case dan adapter persistence.
+ */
 export interface Game {
 	id: string
 	title: string

@@ -1,5 +1,9 @@
 import type { Review } from '../modules/reviews/review.js'
 
+/**
+ * Ulasan awal untuk adapter in-memory, terpisah agar seed bukan bagian dari
+ * aturan penyimpanan repository.
+ */
 export const seededReviews: readonly Review[] = [
 	{
 		id: 'review-elden-1',

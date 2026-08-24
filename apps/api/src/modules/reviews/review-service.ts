@@ -5,7 +5,15 @@ import type { GameService } from '../games/game-service.js'
 import type { ReviewRepository } from './review-repository.js'
 import type { CreateReviewInput, Review } from './review.js'
 
+/**
+ * Menjalankan use case ulasan: memastikan game ada, menjaga invariant data,
+ * lalu menyerahkan persistence kepada repository.
+ */
 export class ReviewService {
+	/**
+	 * Dependency dipisahkan agar keberadaan game, penyimpanan ulasan, id, dan
+	 * waktu dapat diganti atau dikendalikan tanpa mengubah aturan use case.
+	 */
 	constructor(
 		private readonly gameService: GameService,
 		private readonly reviewRepository: ReviewRepository,
@@ -13,6 +21,11 @@ export class ReviewService {
 		private readonly now: () => Date = () => new Date(),
 	) {}
 
+	/**
+	 * Mengambil ulasan sebuah game dalam urutan terbaru lebih dahulu.
+	 *
+	 * @throws {ApplicationNotFoundError} Bila game tidak ada.
+	 */
 	listReviews(gameId: string): Review[] {
 		this.gameService.getGameById(gameId)
 
@@ -21,6 +34,14 @@ export class ReviewService {
 			.sort((left, right) => right.createdAt.localeCompare(left.createdAt))
 	}
 
+	/**
+	 * Membuat ulasan setelah menormalisasi teks dan memeriksa invariant domain.
+	 * Validasi tetap berada di service meski HTTP memakai Zod, karena use case
+	 * ini juga dapat dipanggil dari transport lain.
+	 *
+	 * @throws {ApplicationNotFoundError} Bila game tujuan tidak ada.
+	 * @throws {ApplicationValidationError} Bila nama, teks, atau rating tidak valid.
+	 */
 	createReview(gameId: string, input: CreateReviewInput): Review {
 		this.gameService.getGameById(gameId)
 		const reviewerName = input.reviewerName.trim()

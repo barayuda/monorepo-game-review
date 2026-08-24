@@ -1,5 +1,9 @@
 import type { Game } from '../modules/games/game.js'
 
+/**
+ * Katalog awal untuk adapter in-memory; dipisahkan dari repository agar data
+ * contoh dapat diganti tanpa mengubah kontrak persistence.
+ */
 export const seededGames: readonly Game[] = [
 	{
 		id: 'elden-ring',

@@ -1,3 +1,6 @@
+/**
+ * Ulasan yang sudah tersimpan dan selalu terkait dengan satu game.
+ */
 export interface Review {
 	id: string
 	gameId: string
@@ -7,6 +10,9 @@ export interface Review {
 	createdAt: string
 }
 
+/**
+ * Data yang diterima use case sebelum service menormalisasi dan memvalidasinya.
+ */
 export interface CreateReviewInput {
 	reviewerName: string
 	text: string
