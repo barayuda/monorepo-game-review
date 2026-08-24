@@ -19,14 +19,15 @@ describe('AppRouter', () => {
 		expect(html).toContain('Memuat daftar game')
 	})
 
-	it('menyediakan placeholder detail untuk game yang dipilih', () => {
+	it('menyediakan halaman detail berbasis query untuk game yang dipilih', () => {
 		const html = renderToStaticMarkup(
-			<MemoryRouter initialEntries={['/games/game-1']}>
-				<AppRouter />
-			</MemoryRouter>,
+			<QueryClientProvider client={createAppQueryClient()}>
+				<MemoryRouter initialEntries={['/games/game-1']}>
+					<AppRouter />
+				</MemoryRouter>
+			</QueryClientProvider>,
 		)
 
-		expect(html).toContain('Detail game')
-		expect(html).toContain('game-1')
+		expect(html).toContain('Memuat detail game')
 	})
 })
