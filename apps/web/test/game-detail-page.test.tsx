@@ -501,21 +501,53 @@ describe('halaman detail game', () => {
 		expect((rating as HTMLInputElement).checked).toBe(true)
 	})
 
-	it('menempelkan kegagalan validasi server ke field yang disebutkan', async () => {
-		// Menangkap regresi ketika issues dari API diparse lalu dibuang, sehingga
-		// pengguna hanya diberi tahu gagal tanpa tahu bagian mana yang salah.
+	it.each([
+		['reviewerName', 'Nama sudah dipakai pemain lain.', 'Nama reviewer'],
+		['text', 'Teks ulasan mengandung kata terlarang.', 'Teks ulasan'],
+	])(
+		'menempelkan kegagalan validasi server pada field %s',
+		async (field, issueMessage, label) => {
+			// Menangkap regresi ketika issues dari API diparse lalu dibuang, sehingga
+			// pengguna hanya diberi tahu gagal tanpa tahu bagian mana yang salah.
+			stubDetailApi({
+				postResult: {
+					status: 400,
+					body: {
+						code: 'VALIDATION_ERROR',
+						message: 'Validation failed',
+						issues: [{ path: [field], message: issueMessage }],
+					},
+				},
+			})
+			renderGameDetail()
+			await waitForDetail()
+			const user = userEvent.setup()
+
+			await fillReviewForm(user, {
+				name: 'Nadia',
+				text: 'Ulasan yang valid di sisi klien.',
+				rating: 4,
+			})
+			await user.click(screen.getByRole('button', { name: 'Kirim ulasan' }))
+
+			expect(await screen.findByText(issueMessage)).toBeTruthy()
+			expect(
+				screen
+					.getByRole('textbox', { name: label })
+					.getAttribute('aria-invalid'),
+			).toBe('true')
+		},
+	)
+
+	it('menempelkan kegagalan validasi rating dari server', async () => {
+		// Rating bukan textbox, jadi jalur pemetaannya perlu dibuktikan terpisah.
 		stubDetailApi({
 			postResult: {
 				status: 400,
 				body: {
 					code: 'VALIDATION_ERROR',
 					message: 'Validation failed',
-					issues: [
-						{
-							path: ['reviewerName'],
-							message: 'Nama sudah dipakai pemain lain.',
-						},
-					],
+					issues: [{ path: ['rating'], message: 'Rating di luar rentang.' }],
 				},
 			},
 		})
@@ -530,14 +562,7 @@ describe('halaman detail game', () => {
 		})
 		await user.click(screen.getByRole('button', { name: 'Kirim ulasan' }))
 
-		expect(
-			await screen.findByText('Nama sudah dipakai pemain lain.'),
-		).toBeTruthy()
-		expect(
-			screen
-				.getByRole('textbox', { name: 'Nama reviewer' })
-				.getAttribute('aria-invalid'),
-		).toBe('true')
+		expect(await screen.findByText('Rating di luar rentang.')).toBeTruthy()
 	})
 
 	it('menawarkan jalan keluar ketika detail game gagal dimuat', async () => {
