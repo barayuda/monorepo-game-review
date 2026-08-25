@@ -18,6 +18,8 @@ describe('API modules', () => {
 						description: 'Petualangan antariksa.',
 						genre: 'Adventure',
 						platform: 'PC',
+						developer: 'Studio Bumi',
+						releaseYear: 2024,
 					},
 				]),
 				{ status: 200, headers: { 'content-type': 'application/json' } },

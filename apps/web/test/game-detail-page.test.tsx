@@ -19,6 +19,8 @@ const game: GameDto = {
 	description: 'Petualangan di pulau terapung.',
 	genre: 'Adventure',
 	platform: 'PC',
+	developer: 'Studio Senja',
+	releaseYear: 2024,
 }
 
 const existingReview: ReviewDto = {

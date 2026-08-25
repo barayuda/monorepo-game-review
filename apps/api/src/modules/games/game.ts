@@ -7,4 +7,8 @@ export interface Game {
 	description: string
 	genre: string
 	platform: string
+	developer: string
+	releaseYear: number
+	awardYear?: number
+	awardRank?: number
 }

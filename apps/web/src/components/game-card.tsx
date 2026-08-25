@@ -1,6 +1,8 @@
 import type { GameDto } from '@game-review/contracts'
 import { Link } from 'react-router-dom'
 
+import { AwardBadge } from './award-badge.js'
+
 interface GameCardProps {
 	game: GameDto
 	/** Urutan kartu, dipakai menunda animasi masuk agar grid terbuka berurutan. */
@@ -30,7 +32,25 @@ export function GameCard({ game, index = 0 }: GameCardProps): React.ReactNode {
 			<h2 className="mt-3 font-display text-2xl font-bold text-ink">
 				{game.title}
 			</h2>
-			<p className="prose-review mt-2 grow text-ink-soft">{game.description}</p>
+			<dl className="mt-1.5 flex flex-wrap items-center gap-x-2 text-sm text-ink-soft">
+				<div>
+					<dt className="sr-only">Developer</dt>
+					<dd>{game.developer}</dd>
+				</div>
+				<span aria-hidden="true" className="text-rule">
+					·
+				</span>
+				<div>
+					<dt className="sr-only">Tahun rilis</dt>
+					<dd>{game.releaseYear}</dd>
+				</div>
+			</dl>
+			<p className="prose-review mt-3 grow text-ink-soft">{game.description}</p>
+			{game.awardYear && game.awardRank ? (
+				<div className="mt-4">
+					<AwardBadge rank={game.awardRank} year={game.awardYear} />
+				</div>
+			) : null}
 			<Link
 				aria-label={`Buka detail ${game.title}`}
 				className="label-data mt-5 -mb-2 inline-flex items-center gap-1.5 self-start py-2 text-action underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"

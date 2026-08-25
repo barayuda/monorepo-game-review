@@ -74,10 +74,7 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 			</p>
 			<form className="mt-5 space-y-5" noValidate onSubmit={handleSubmit}>
 				<div className="space-y-2">
-					<label
-						className="label-data block text-ink-soft"
-						htmlFor="reviewer-name"
-					>
+					<label className="label-field block text-ink" htmlFor="reviewer-name">
 						Nama reviewer
 					</label>
 					<input
@@ -104,10 +101,7 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 					) : null}
 				</div>
 				<div className="space-y-2">
-					<label
-						className="label-data block text-ink-soft"
-						htmlFor="review-text"
-					>
+					<label className="label-field block text-ink" htmlFor="review-text">
 						Teks ulasan
 					</label>
 					<textarea

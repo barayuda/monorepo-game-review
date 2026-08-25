@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 
+import { AwardBadge } from '../components/award-badge.js'
 import { ReviewForm } from '../components/review-form.js'
 import { ReviewList } from '../components/review-list.js'
 import { ReviewSummary } from '../components/review-summary.js'
@@ -64,7 +65,18 @@ export function GameDetailPage(): React.ReactNode {
 							/
 						</span>
 						<span className="label-data">{game.genre}</span>
+						<span aria-hidden="true" className="text-rule">
+							/
+						</span>
+						<span className="label-data">{game.developer}</span>
+						<span aria-hidden="true" className="text-rule">
+							/
+						</span>
+						<span className="label-data">{game.releaseYear}</span>
 					</div>
+					{game.awardYear && game.awardRank ? (
+						<AwardBadge rank={game.awardRank} year={game.awardYear} />
+					) : null}
 				</div>
 			</div>
 			{reviewsQuery.data ? <ReviewSummary reviews={reviewsQuery.data} /> : null}

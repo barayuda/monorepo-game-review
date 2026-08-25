@@ -11,19 +11,27 @@ describe('GameService', () => {
 
 		const games = service.listGames()
 
-		expect(games).toHaveLength(8)
+		expect(games).toHaveLength(19)
 		expect(new Set(games.map((game) => game.id)).size).toBe(games.length)
 		// Entri pertama dicek utuh supaya bentuk DTO dan urutan katalog tetap terkunci.
 		expect(games[0]).toEqual({
-			id: 'elden-ring',
-			title: 'Elden Ring',
+			id: 'astro-bot',
+			title: 'Astro Bot',
 			description:
-				'Game of the Year 2022. Explore the Lands Between in an open-world action role-playing game.',
-			genre: 'Action RPG',
+				'Platformer 3D yang memperkenalkan satu ide baru di hampir setiap level lalu pensiun sebelum bosan.',
+			genre: 'Platformer',
 			platform: 'PlayStation 5',
+			developer: 'Team Asobi',
+			releaseYear: 2024,
+			awardYear: 2024,
+			awardRank: 1,
 		})
 		for (const game of games) {
-			expect(Object.values(game).every((value) => value.length > 0)).toBe(true)
+			expect(
+				Object.values(game).every((value) =>
+					typeof value === 'string' ? value.length > 0 : value > 0,
+				),
+			).toBe(true)
 		}
 	})
 
@@ -33,10 +41,13 @@ describe('GameService', () => {
 		expect(service.getGameById('elden-ring')).toEqual({
 			id: 'elden-ring',
 			title: 'Elden Ring',
-			description:
-				'Game of the Year 2022. Explore the Lands Between in an open-world action role-playing game.',
+			description: 'Menjelajahi Lands Between dalam action RPG dunia terbuka.',
 			genre: 'Action RPG',
 			platform: 'PlayStation 5',
+			developer: 'FromSoftware',
+			releaseYear: 2022,
+			awardYear: 2022,
+			awardRank: 1,
 		})
 	})
 
@@ -67,6 +78,10 @@ describe('InMemoryGameRepository', () => {
 				description: 'Explore the Lands Between.',
 				genre: 'Action RPG',
 				platform: 'PlayStation 5',
+				developer: 'FromSoftware',
+				releaseYear: 2022,
+				developer: 'FromSoftware',
+				releaseYear: 2022,
 			},
 		]
 		const repository = new InMemoryGameRepository(games)
@@ -86,6 +101,10 @@ describe('InMemoryGameRepository', () => {
 				description: 'Explore the Lands Between.',
 				genre: 'Action RPG',
 				platform: 'PlayStation 5',
+				developer: 'FromSoftware',
+				releaseYear: 2022,
+				developer: 'FromSoftware',
+				releaseYear: 2022,
 			},
 		])
 

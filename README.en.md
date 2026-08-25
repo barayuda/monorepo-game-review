@@ -20,16 +20,16 @@ The repository favors explicit boundaries over framework ceremony: React renders
 
 ## 2. Requirement Coverage
 
-| Requirement                       | Implementation                                                                                                                                                    |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Separate frontend and backend     | `apps/web` and `apps/api` communicate only through `/api` REST endpoints.                                                                                         |
-| Game and Review domain models     | Separate modules, services, and repository contracts live under `apps/api/src/modules`.                                                                           |
-| Seed data                         | Eight Game of the Year winners and eleven reviews load into fresh in-memory repositories; one game is deliberately left unreviewed so the empty state is visible. |
-| Browse and inspect games          | `/` lists games; `/games/:gameId` shows details and reviews.                                                                                                      |
-| Submit validated reviews          | Browser and API validate required fields; the service enforces trimmed lengths and integer ratings from 1 to 5.                                                   |
-| Review visibility without restart | The submitter sees the server-confirmed review immediately; another active detail viewer polls every two seconds.                                                 |
-| Automated verification            | Vitest covers backend services/routes and frontend behavior; Playwright covers the critical user flow.                                                            |
-| One-command reviewer environment  | `docker compose up --build` builds and starts the complete application.                                                                                           |
+| Requirement                       | Implementation                                                                                                                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Separate frontend and backend     | `apps/web` and `apps/api` communicate only through `/api` REST endpoints.                                                                                                      |
+| Game and Review domain models     | Separate modules, services, and repository contracts live under `apps/api/src/modules`.                                                                                        |
+| Seed data                         | Nineteen Game of the Year winners and nominees with 26 reviews load into fresh in-memory repositories; one game is deliberately left unreviewed so the empty state is visible. |
+| Browse and inspect games          | `/` lists games; `/games/:gameId` shows details and reviews.                                                                                                                   |
+| Submit validated reviews          | Browser and API validate required fields; the service enforces trimmed lengths and integer ratings from 1 to 5.                                                                |
+| Review visibility without restart | The submitter sees the server-confirmed review immediately; another active detail viewer polls every two seconds.                                                              |
+| Automated verification            | Vitest covers backend services/routes and frontend behavior; Playwright covers the critical user flow.                                                                         |
+| One-command reviewer environment  | `docker compose up --build` builds and starts the complete application.                                                                                                        |
 
 ## 3. Screens and Main Flow
 
@@ -171,6 +171,8 @@ curl -X POST http://localhost:3000/api/games/elden-ring/reviews \
   -d '{"reviewerName":"Raka","text":"Exploration feels rewarding.","rating":5}'
 ```
 
+Every game carries `id`, `title`, `description`, `genre`, `platform`, `developer`, and `releaseYear`. Games on a Game of the Year list also carry `awardYear` and `awardRank`; rank 1 is that year's winner, while 2 and 3 are nominees from the same year ordered by this catalogue, because The Game Awards does not publish second and third place.
+
 `reviewerName` must contain 1–80 characters after trimming, `text` 1–2000 characters, and `rating` must be an integer from 1 to 5. Unknown game IDs return `GAME_NOT_FOUND`, invalid requests return `VALIDATION_ERROR`, unknown routes return `NOT_FOUND`, and unexpected failures return a sanitized `INTERNAL_ERROR` envelope.
 
 ## 10. Architectural Decisions
@@ -298,6 +300,7 @@ The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `p
 5. Add structured logs, request correlation, metrics, production readiness probes, and error reporting.
 6. Extend Playwright to failure/retry and multi-viewer scenarios, plus automated accessibility and visual-regression checks.
 7. Add deployment smoke tests, scheduled dependency checks, and a separately triggered E2E release workflow when their runtime cost is justified.
+8. Add performance tests for the REST API: set p95 and p99 latency budgets per endpoint, measure `GET /api/games` alongside review reads and writes under concurrency with k6 or autocannon, run it as a gate separate from the main CI, and record the point at which the in-memory adapter becomes the bottleneck.
 
 ## 15. Known Limitations
 

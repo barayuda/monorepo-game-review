@@ -1,10 +1,21 @@
-/** DTO publik sebuah game yang dikirim API tanpa mengekspos detail persistence. */
+/**
+ * DTO publik sebuah game yang dikirim API tanpa mengekspos detail persistence.
+ *
+ * `awardYear` dan `awardRank` hanya ada pada game yang masuk daftar Game of the
+ * Year. Rank 1 berarti pemenang tahun itu; rank 2 dan 3 adalah nominasi pada
+ * tahun yang sama, diurutkan oleh katalog ini karena The Game Awards tidak
+ * mengumumkan juara dua dan tiga.
+ */
 export interface GameDto {
 	id: string
 	title: string
 	description: string
 	genre: string
 	platform: string
+	developer: string
+	releaseYear: number
+	awardYear?: number
+	awardRank?: number
 }
 
 /** DTO publik ulasan yang sudah tersimpan dan ditampilkan untuk sebuah game. */

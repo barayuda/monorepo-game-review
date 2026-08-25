@@ -17,15 +17,19 @@ describe('API routes', () => {
 
 		expect(response.statusCode).toBe(200)
 		const games = response.json()
-		expect(games).toHaveLength(8)
-		expect(new Set(games.map((game: { id: string }) => game.id)).size).toBe(8)
+		expect(games).toHaveLength(19)
+		expect(new Set(games.map((game: { id: string }) => game.id)).size).toBe(19)
 		expect(games[0]).toEqual({
-			id: 'elden-ring',
-			title: 'Elden Ring',
+			id: 'astro-bot',
+			title: 'Astro Bot',
 			description:
-				'Game of the Year 2022. Explore the Lands Between in an open-world action role-playing game.',
-			genre: 'Action RPG',
+				'Platformer 3D yang memperkenalkan satu ide baru di hampir setiap level lalu pensiun sebelum bosan.',
+			genre: 'Platformer',
 			platform: 'PlayStation 5',
+			developer: 'Team Asobi',
+			releaseYear: 2024,
+			awardYear: 2024,
+			awardRank: 1,
 		})
 	})
 
@@ -42,10 +46,13 @@ describe('API routes', () => {
 		expect(response.json()).toEqual({
 			id: 'elden-ring',
 			title: 'Elden Ring',
-			description:
-				'Game of the Year 2022. Explore the Lands Between in an open-world action role-playing game.',
+			description: 'Menjelajahi Lands Between dalam action RPG dunia terbuka.',
 			genre: 'Action RPG',
 			platform: 'PlayStation 5',
+			developer: 'FromSoftware',
+			releaseYear: 2022,
+			awardYear: 2022,
+			awardRank: 1,
 		})
 	})
 
@@ -80,7 +87,7 @@ describe('API routes', () => {
 				id: 'review-elden-2',
 				gameId: 'elden-ring',
 				reviewerName: 'Samira Patel',
-				text: 'A vast, challenging adventure that rewards curiosity.',
+				text: 'Luas dan sulit, tapi rasa penasaran hampir selalu dibayar tuntas.',
 				rating: 5,
 				createdAt: '2025-01-20T09:30:00.000Z',
 			},
@@ -88,7 +95,7 @@ describe('API routes', () => {
 				id: 'review-elden-1',
 				gameId: 'elden-ring',
 				reviewerName: 'Jordan Lee',
-				text: 'Its world design makes every detour feel worthwhile.',
+				text: 'Desain dunianya membuat setiap belokan yang tidak direncanakan terasa berharga.',
 				rating: 5,
 				createdAt: '2025-01-15T14:00:00.000Z',
 			},
