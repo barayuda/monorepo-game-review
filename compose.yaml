@@ -6,6 +6,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
+    init: true
+    restart: unless-stopped
     ports:
       - '3000:3000'
     healthcheck:
@@ -26,6 +28,7 @@ services:
       dockerfile: apps/web/Dockerfile
     ports:
       - '8080:80'
+    restart: unless-stopped
     depends_on:
       api:
         condition: service_healthy

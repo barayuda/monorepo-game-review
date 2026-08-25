@@ -105,7 +105,8 @@ const toHttpError = (
  * pada setiap pemanggilan, sehingga state satu aplikasi tidak bocor ke aplikasi lain.
  */
 export const buildApp = (options: BuildAppOptions = {}) => {
-	const app = Fastify()
+	// Senyap saat test agar output suite bersih; selain itu request dan kegagalan wajib tercatat.
+	const app = Fastify({ logger: process.env.NODE_ENV !== 'test' })
 	const gameService = new GameService(new InMemoryGameRepository())
 	const reviewService = new ReviewService(
 		gameService,
@@ -114,8 +115,15 @@ export const buildApp = (options: BuildAppOptions = {}) => {
 		options.now,
 	)
 
-	app.setErrorHandler((error, _request, reply) => {
+	app.setErrorHandler((error, request, reply) => {
 		const mappedError = toHttpError(error)
+
+		// Client hanya menerima envelope yang sudah disanitasi, jadi detail aslinya harus mendarat di log.
+		if (mappedError.statusCode >= 500) {
+			request.log.error({ err: error }, 'unhandled request error')
+		} else {
+			request.log.warn({ err: error }, 'rejected request')
+		}
 
 		return reply.status(mappedError.statusCode).send(mappedError.body)
 	})
