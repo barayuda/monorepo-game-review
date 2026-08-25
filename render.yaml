@@ -4,16 +4,21 @@
 # dan Docker Compose, sehingga yang berjalan di Render adalah artefak yang telah
 # diuji, bukan jalur build kedua yang tidak pernah dicoba siapa pun.
 #
-# `autoDeploy: false` disengaja. Deploy dipicu GitHub Actions setelah quality
-# gate, acceptance test, dan container build lulus, sehingga kode yang gagal CI
-# tidak pernah sampai ke URL publik.
+# `autoDeployTrigger: checksPass` membuat Render menunggu status check GitHub
+# hijau sebelum men-deploy, sehingga kode yang gagal quality gate, acceptance
+# test, atau container build tidak pernah sampai ke URL publik. Gating ini
+# dikerjakan platform, jadi tidak perlu deploy hook maupun secret tambahan.
+#
+# `branch` disematkan supaya `main` tetap pada commit yang disubmit; hapus
+# field ini setelah cabang deployment digabungkan.
 services:
   - type: web
     name: game-review-api
     runtime: docker
     plan: free
     region: singapore
-    autoDeploy: false
+    autoDeployTrigger: checksPass
+    branch: feat/render-deployment
     dockerfilePath: ./apps/api/Dockerfile
     dockerContext: .
     # Endpoint yang sama dipakai healthcheck Compose, jadi kesiapannya diukur
@@ -28,7 +33,8 @@ services:
     runtime: docker
     plan: free
     region: singapore
-    autoDeploy: false
+    autoDeployTrigger: checksPass
+    branch: feat/render-deployment
     dockerfilePath: ./apps/web/Dockerfile
     dockerContext: .
     envVars:

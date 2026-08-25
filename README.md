@@ -342,12 +342,14 @@ Terakhir, dan ini penting: berikut hal-hal yang memang belum ada, supaya tidak a
 
 `render.yaml` mendefinisikan lingkungan demo publik: dua service Docker di region Singapore, memakai Dockerfile yang sama persis dengan yang sudah diverifikasi CI dan Docker Compose. Tidak ada jalur build kedua yang tidak pernah dicoba siapa pun.
 
-Deploy digerakkan CI, bukan oleh push. `autoDeploy` sengaja dimatikan di `render.yaml`, dan job `Deploy to Render` baru berjalan setelah quality gate, acceptance test, dan container build hijau. Artinya kode yang gagal CI tidak pernah sampai ke URL publik.
+Deploy digerakkan hasil CI, bukan oleh push. `autoDeployTrigger: checksPass` membuat Render menunggu status check GitHub hijau lebih dulu, sehingga kode yang gagal quality gate, acceptance test, atau container build tidak pernah sampai ke URL publik. Gating-nya dikerjakan platform, jadi repositori ini tidak menyimpan deploy hook maupun secret apa pun.
 
-Dua langkah berikut dikerjakan sekali lewat dashboard Render dan GitHub:
+Cara membuatnya, sekali saja:
 
-1. Buat Blueprint baru di Render dari repositori ini. Render membaca `render.yaml` lalu membuat kedua service.
-2. Salin deploy hook tiap service ke GitHub secret `RENDER_DEPLOY_HOOK_API` dan `RENDER_DEPLOY_HOOK_WEB`. Kalau salah satu belum diisi, job deploy melewati dirinya sendiri alih-alih menggagalkan CI, jadi fork tetap bisa lulus.
+1. Di dashboard Render pilih **New → Blueprint**, arahkan ke repositori ini, lalu pilih branch tempat `render.yaml` berada.
+2. Tidak ada langkah kedua. Runtime, region, plan, health check, gating deploy, dan alamat internal API semuanya dibaca dari `render.yaml`.
+
+Jangan memakai **New → Web Service**. Alur itu mengabaikan `render.yaml`, menebak runtime Node alih-alih Docker, dan hanya membuat satu service tanpa `API_UPSTREAM` yang dibutuhkan Nginx untuk memproksi `/api`.
 
 Nginx menerima alamat API lewat `API_UPSTREAM`, diturunkan otomatis dari service API di private network Render, sehingga tidak ada URL yang perlu ditulis ulang manual. Template yang sama tetap dipakai Docker Compose lewat nilai default di Dockerfile, jadi satu berkas konfigurasi melayani keduanya.
 

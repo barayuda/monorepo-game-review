@@ -320,12 +320,14 @@ The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm 
 
 `render.yaml` defines a public demo environment: two Docker services in the Singapore region, built from the same Dockerfiles that CI and Docker Compose already verify. There is no second, never-exercised build path.
 
-Deployment is driven by CI rather than by pushing. `autoDeploy` is deliberately off in `render.yaml`, and the `Deploy to Render` job runs only after the quality gates, acceptance test, and container build are green, so code that fails CI never reaches the public URL.
+Deployment is driven by CI results rather than by pushing. `autoDeployTrigger: checksPass` makes Render wait for green GitHub checks first, so code that fails the quality gates, acceptance test, or container build never reaches the public URL. The platform performs the gating, so this repository stores no deploy hooks and no secrets.
 
-Two steps happen once, in the Render and GitHub dashboards:
+Creating it, once:
 
-1. Create a new Blueprint in Render from this repository. Render reads `render.yaml` and creates both services.
-2. Copy each service's deploy hook into the GitHub secrets `RENDER_DEPLOY_HOOK_API` and `RENDER_DEPLOY_HOOK_WEB`. If either is missing the deploy job skips itself rather than failing CI, so forks still pass.
+1. In the Render dashboard choose **New → Blueprint**, point it at this repository, and select the branch holding `render.yaml`.
+2. There is no second step. Runtime, region, plan, health check, deploy gating, and the API's internal address all come from `render.yaml`.
+
+Do not use **New → Web Service**. That flow ignores `render.yaml`, guesses a Node runtime instead of Docker, and creates a single service with no `API_UPSTREAM` for Nginx to proxy `/api` to.
 
 Nginx receives the API address through `API_UPSTREAM`, derived from the API service on Render's private network, so no URL is ever transcribed by hand. Docker Compose uses the same template through the Dockerfile defaults, so one config file serves both.
 
