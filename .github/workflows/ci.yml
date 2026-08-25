@@ -108,3 +108,30 @@ jobs:
       # README menyuruh reviewer menjalankan perintah ini, jadi CI harus membuktikannya bisa.
       - name: Build images
         run: docker compose build
+
+  deploy:
+    name: Deploy to Render
+    needs: [quality, e2e, docker]
+    # Deploy hanya setelah ketiga gate hijau, dan hanya dari main. Inilah alasan
+    # `autoDeploy` dimatikan di render.yaml: tanpa itu Render akan men-deploy
+    # setiap push tanpa peduli hasil CI.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger Render deploys
+        env:
+          API_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_API }}
+          WEB_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_WEB }}
+        run: |
+          # Fork dan checkout tanpa secret tetap lulus CI alih-alih gagal pada
+          # langkah yang memang tidak bisa mereka jalankan.
+          if [ -z "$API_HOOK" ] || [ -z "$WEB_HOOK" ]; then
+            echo "::notice::Render deploy hooks are not configured; skipping deploy."
+            exit 0
+          fi
+          # API lebih dulu supaya backend sudah dalam perjalanan saat frontend
+          # ditukar; keduanya tetap diproses Render secara asinkron.
+          curl -fsS -X POST "$API_HOOK" > /dev/null
+          curl -fsS -X POST "$WEB_HOOK" > /dev/null
+          echo "Render deploys triggered."

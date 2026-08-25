@@ -1,0 +1,42 @@
+# Blueprint Render untuk lingkungan demo publik.
+#
+# Kedua service memakai Dockerfile yang sama dengan yang sudah diverifikasi CI
+# dan Docker Compose, sehingga yang berjalan di Render adalah artefak yang telah
+# diuji, bukan jalur build kedua yang tidak pernah dicoba siapa pun.
+#
+# `autoDeploy: false` disengaja. Deploy dipicu GitHub Actions setelah quality
+# gate, acceptance test, dan container build lulus, sehingga kode yang gagal CI
+# tidak pernah sampai ke URL publik.
+services:
+  - type: web
+    name: game-review-api
+    runtime: docker
+    plan: free
+    region: singapore
+    autoDeploy: false
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    # Endpoint yang sama dipakai healthcheck Compose, jadi kesiapannya diukur
+    # dengan cara yang identik di laptop dan di Render.
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: game-review-web
+    runtime: docker
+    plan: free
+    region: singapore
+    autoDeploy: false
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: .
+    envVars:
+      # Alamat API di private network Render, dalam bentuk host:port tanpa
+      # skema; template Nginx yang menambahkan `http://`. Nilainya diturunkan
+      # dari service lain agar tidak ada URL yang ditulis ulang secara manual.
+      - key: API_UPSTREAM
+        fromService:
+          type: web
+          name: game-review-api
+          property: hostport

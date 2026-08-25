@@ -14,7 +14,7 @@ import { seededGames } from '../src/seed/games.js'
  * server: API tetap membalas 200, dan gambar baru diblokir di browser pembaca.
  */
 const nginxConfig = readFileSync(
-	fileURLToPath(new URL('../../web/nginx.conf', import.meta.url)),
+	fileURLToPath(new URL('../../web/nginx.conf.template', import.meta.url)),
 	'utf8',
 )
 

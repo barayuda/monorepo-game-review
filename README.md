@@ -337,3 +337,23 @@ Terakhir, dan ini penting: berikut hal-hal yang memang belum ada, supaya tidak a
 - UI-nya sengaja ringkas: tanpa sistem lokalisasi, dukungan offline, atau SSR.
 - Sampul dimuat dari host eksternal, jadi tanpa koneksi keluar setiap kartu turun ke penanda cadangan berisi inisial judul. Aplikasinya tetap berfungsi penuh.
 - Docker Compose di sini adalah lingkungan lokal yang bisa direproduksi, bukan spesifikasi deployment production.
+
+## 16. Deploy ke Render
+
+`render.yaml` mendefinisikan lingkungan demo publik: dua service Docker di region Singapore, memakai Dockerfile yang sama persis dengan yang sudah diverifikasi CI dan Docker Compose. Tidak ada jalur build kedua yang tidak pernah dicoba siapa pun.
+
+Deploy digerakkan CI, bukan oleh push. `autoDeploy` sengaja dimatikan di `render.yaml`, dan job `Deploy to Render` baru berjalan setelah quality gate, acceptance test, dan container build hijau. Artinya kode yang gagal CI tidak pernah sampai ke URL publik.
+
+Dua langkah berikut dikerjakan sekali lewat dashboard Render dan GitHub:
+
+1. Buat Blueprint baru di Render dari repositori ini. Render membaca `render.yaml` lalu membuat kedua service.
+2. Salin deploy hook tiap service ke GitHub secret `RENDER_DEPLOY_HOOK_API` dan `RENDER_DEPLOY_HOOK_WEB`. Kalau salah satu belum diisi, job deploy melewati dirinya sendiri alih-alih menggagalkan CI, jadi fork tetap bisa lulus.
+
+Nginx menerima alamat API lewat `API_UPSTREAM`, diturunkan otomatis dari service API di private network Render, sehingga tidak ada URL yang perlu ditulis ulang manual. Template yang sama tetap dipakai Docker Compose lewat nilai default di Dockerfile, jadi satu berkas konfigurasi melayani keduanya.
+
+Yang perlu diketahui sebelum membagikan URL-nya:
+
+- Instance gratis tidur setelah 15 menit tanpa trafik dan butuh sekitar satu menit untuk bangun. Timeout proxy dinaikkan ke 90 detik supaya request pertama menunggu API bangun, bukan berbalas 502.
+- Satu workspace mendapat 750 jam instance per bulan, dan kedua service berbagi kuota itu.
+- Private service tidak tersedia di paket gratis, jadi API ikut terekspos di URL-nya sendiri. Tidak ada data sensitif di sana, tapi ini bukan topologi yang akan dipakai di production.
+- Ulasan disimpan di memori, sehingga setiap tidur, restart, dan deploy mengembalikannya ke data awal.

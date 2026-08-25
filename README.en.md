@@ -315,3 +315,23 @@ The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm 
 - The UI intentionally has a compact catalogue and no localization system, offline support, or SSR.
 - Covers load from an external host, so without outbound connectivity every card falls back to a marker showing the title initial. The application stays fully functional.
 - Docker Compose is a reproducible local environment, not a production deployment specification.
+
+## 16. Deploying to Render
+
+`render.yaml` defines a public demo environment: two Docker services in the Singapore region, built from the same Dockerfiles that CI and Docker Compose already verify. There is no second, never-exercised build path.
+
+Deployment is driven by CI rather than by pushing. `autoDeploy` is deliberately off in `render.yaml`, and the `Deploy to Render` job runs only after the quality gates, acceptance test, and container build are green, so code that fails CI never reaches the public URL.
+
+Two steps happen once, in the Render and GitHub dashboards:
+
+1. Create a new Blueprint in Render from this repository. Render reads `render.yaml` and creates both services.
+2. Copy each service's deploy hook into the GitHub secrets `RENDER_DEPLOY_HOOK_API` and `RENDER_DEPLOY_HOOK_WEB`. If either is missing the deploy job skips itself rather than failing CI, so forks still pass.
+
+Nginx receives the API address through `API_UPSTREAM`, derived from the API service on Render's private network, so no URL is ever transcribed by hand. Docker Compose uses the same template through the Dockerfile defaults, so one config file serves both.
+
+Worth knowing before sharing the URL:
+
+- Free instances sleep after 15 minutes without traffic and take about a minute to wake. Proxy timeouts are raised to 90 seconds so a first request waits for the API instead of returning 502.
+- A workspace gets 750 instance hours per month, and the two services share that quota.
+- Private services are not available on the free plan, so the API is also reachable at its own URL. Nothing sensitive lives there, but it is not the topology a production deployment would use.
+- Reviews are held in memory, so every sleep, restart, and deploy resets them to the seed data.

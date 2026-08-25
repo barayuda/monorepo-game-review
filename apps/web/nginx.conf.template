@@ -1,5 +1,9 @@
 server {
-	listen 80;
+	# Port dan upstream disuntik saat container start: Compose memakai default
+	# dari Dockerfile, Render menyuntik PORT miliknya sendiri. NGINX_ENVSUBST_FILTER
+	# membatasi substitusi pada dua variabel ini saja, sehingga $host dan $uri
+	# milik Nginx tidak ikut tergantikan.
+	listen ${PORT};
 	server_name _;
 
 	root /usr/share/nginx/html;
@@ -50,8 +54,17 @@ server {
 
 	location /api/ {
 		# Tanpa suffix URI, Nginx mempertahankan prefix /api milik kontrak backend.
-		proxy_pass http://api:3000;
+		# Skema ditulis di sini karena Render menyediakan alamat internal dalam
+		# bentuk host:port tanpa skema; trafik antar service memakai HTTP biasa.
+		proxy_pass http://${API_UPSTREAM};
 		proxy_http_version 1.1;
+
+		# Instance gratis Render tidur setelah 15 menit tanpa trafik dan butuh
+		# sekitar satu menit untuk bangun. Tanpa timeout selonggar ini, request
+		# pertama seorang reviewer berbalas 502 alih-alih menunggu API siap.
+		proxy_connect_timeout 90s;
+		proxy_send_timeout 90s;
+		proxy_read_timeout 90s;
 		proxy_set_header Host $host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
