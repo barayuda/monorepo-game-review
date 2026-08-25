@@ -58,10 +58,8 @@ export function GameDetailPage(): React.ReactNode {
 		)
 	}
 
-	if (!gameQuery.data) {
-		return null
-	}
-
+	// TypeScript sudah mempersempit `data` setelah dua guard di atas, jadi tidak
+	// ada cabang ketiga yang perlu ditangani di sini.
 	const game = gameQuery.data
 
 	return (

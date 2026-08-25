@@ -18,7 +18,7 @@ Use ESM and strict TypeScript. Prettier enforces tabs, single quotes, no semicol
 
 ## Testing Guidelines
 
-Follow strict red-green-refactor TDD. When a test is written after the fact, prove it has teeth by breaking the implementation and confirming it fails first. Name files `*.test.ts` or `*.test.tsx`. Backend HTTP tests use Fastify `inject()`; frontend tests use Vitest and React Testing Library. Assert visible or boundary behavior, not mock existence. Globals and mocks are restored by the Vitest config rather than by each file, but fake timers still need resetting where they are used. `pnpm typecheck` covers `test/` through each app's `tsconfig.test.json`, so fixtures stay honest against the shared DTOs.
+Follow strict red-green-refactor TDD. When a test is written after the fact, prove it has teeth by breaking the implementation and confirming it fails first. Name files `*.test.ts` or `*.test.tsx`. Backend HTTP tests use Fastify `inject()`; frontend tests use Vitest and React Testing Library. Assert visible or boundary behavior, not mock existence. Globals and mocks are restored by the Vitest config rather than by each file, but fake timers still need resetting where they are used. `pnpm typecheck` covers `test/` through each app's `tsconfig.test.json`, so fixtures stay honest against the shared DTOs. `pnpm test:coverage` enforces 100% statements, branches, functions, and lines in both apps; when a line is genuinely unreachable, delete it rather than writing a test that cannot fail.
 
 ## Local Hooks & CI
 

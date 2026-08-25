@@ -216,4 +216,20 @@ describe('halaman daftar game', () => {
 		expect(await screen.findByText('Studio Pulau')).toBeTruthy()
 		expect(screen.queryByText(/GOTY/)).toBeNull()
 	})
+
+	it('tetap memberi pesan yang terbaca ketika kegagalan bukan Error', async () => {
+		// Menangkap regresi ketika penolakan non-Error dirender sebagai [object Object].
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(() => Promise.reject('kegagalan tanpa objek Error')),
+		)
+
+		renderGameList()
+
+		// Penolakan non-Error bukan 4xx, jadi kebijakan retry mencobanya dua kali
+		// dengan backoff sebelum status error mengendap.
+		expect(
+			(await screen.findByRole('alert', {}, { timeout: 8_000 })).textContent,
+		).toContain('Katalog game tidak dapat dimuat.')
+	})
 })

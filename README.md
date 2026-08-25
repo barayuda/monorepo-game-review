@@ -285,7 +285,9 @@ Bagian ini menjawab pertanyaan "kenapa ini, bukan itu?" untuk tiap teknologi bes
 
 Pengembangannya mengikuti TDD red-green-refactor. Test service menjaga aturan bisnis dan isolasi repository; test integrasi Fastify menjaga status, DTO, persistence dalam satu proses, plus envelope error yang sudah disanitasi. React Testing Library menutup status loading/error/sukses yang terlihat, validasi, pemilihan rating lewat keyboard, race pada cache, dan lifecycle polling. Playwright memverifikasi alur katalog → detail → kirim → ulasan tersimpan terhadap server sungguhan, tanpa halaman dimuat ulang.
 
-Gate rilis utamanya `pnpm lint`, `pnpm typecheck`, `pnpm test`, dan `pnpm build`. Alur E2E berdiri sendiri sebagai acceptance check dengan biaya lebih tinggi. Sengaja tidak ada target line coverage yang asal ditetapkan; test dipilih berdasarkan persyaratan, batas sistem, jalur kegagalan, dan regresi, bukan berdasarkan detail implementasi.
+Gate rilis utamanya `pnpm lint`, `pnpm typecheck`, `pnpm test`, dan `pnpm build`. Alur E2E berdiri sendiri sebagai acceptance check dengan biaya lebih tinggi.
+
+`pnpm test:coverage` menjalankan suite dengan pengukuran coverage, dan `apps/api` maupun `apps/web` saat ini berada di 100% untuk statement, branch, function, dan line, dengan ambang batas yang membuat CI gagal begitu angkanya turun. Angka itu dicapai dengan menguji perilaku dan membuang kode yang ternyata tidak pernah tereksekusi, bukan dengan menambah assertion kosong: dua cabang mati ditemukan justru karena laporan coverage menyorotinya. Coverage di sini diperlakukan sebagai lantai yang menahan regresi, bukan sebagai tujuan; test tetap dipilih berdasarkan persyaratan, batas sistem, jalur kegagalan, dan regresi. Test yang ditulis setelah implementasinya dibuktikan bergigi dengan cara merusak implementasi itu dan memastikan test-nya gagal lebih dulu.
 
 ## 12. Asumsi
 

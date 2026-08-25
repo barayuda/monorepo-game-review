@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest'
+import { ZodError } from 'zod'
 
 import { buildApp } from '../src/app.js'
 import { ApplicationNotFoundError } from '../src/shared/application-not-found-error.js'
+import { ApplicationValidationError } from '../src/shared/application-validation-error.js'
 
 const appsToClose: Array<ReturnType<typeof buildApp>> = []
 
@@ -416,6 +418,56 @@ describe('API routes', () => {
 		expect(response.json()).toEqual({
 			code: 'NOT_FOUND',
 			message: 'Review not found',
+		})
+	})
+
+	it('maps a service-level invariant failure to the validation envelope', async () => {
+		// Zod menolak payload HTTP lebih dulu, jadi invariant service hanya tercapai
+		// dari caller non-HTTP. Pemetaannya tetap harus benar ketika itu terjadi.
+		const app = buildApp()
+		appsToClose.push(app)
+		app.get('/test-only/invalid-invariant', () => {
+			throw new ApplicationValidationError('rating', 'rating must be 1 to 5')
+		})
+
+		const response = await app.inject({
+			method: 'GET',
+			url: '/test-only/invalid-invariant',
+		})
+
+		expect(response.statusCode).toBe(400)
+		expect(response.json()).toEqual({
+			code: 'VALIDATION_ERROR',
+			message: 'Validation failed',
+			issues: [{ path: ['rating'], message: 'rating must be 1 to 5' }],
+		})
+	})
+
+	it('preserves array indices in a validation issue path', async () => {
+		// Schema saat ini datar, jadi path selalu string. Cabang indeks numerik tetap
+		// diuji supaya penambahan field array kelak tidak diam-diam merusak path issue.
+		const app = buildApp()
+		appsToClose.push(app)
+		app.get('/test-only/array-issue', () => {
+			throw new ZodError([
+				{
+					code: 'custom',
+					path: ['tags', 0],
+					message: 'tag pertama tidak valid',
+				},
+			])
+		})
+
+		const response = await app.inject({
+			method: 'GET',
+			url: '/test-only/array-issue',
+		})
+
+		expect(response.statusCode).toBe(400)
+		expect(response.json()).toEqual({
+			code: 'VALIDATION_ERROR',
+			message: 'Validation failed',
+			issues: [{ path: ['tags', 0], message: 'tag pertama tidak valid' }],
 		})
 	})
 

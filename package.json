@@ -12,6 +12,7 @@
 		"build": "pnpm --recursive run build",
 		"prepare": "husky",
 		"test": "pnpm --recursive run test",
+		"test:coverage": "pnpm --filter @game-review/api --filter @game-review/web run test:coverage",
 		"test:e2e": "env -u NO_COLOR playwright test",
 		"test:e2e:install": "env -u NO_COLOR playwright install chromium",
 		"typecheck": "pnpm --recursive run typecheck",
@@ -20,6 +21,7 @@
 	"devDependencies": {
 		"@eslint/js": "^9.39.2",
 		"@playwright/test": "^1.62.1",
+		"@vitest/coverage-v8": "^4.1.11",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
 		"husky": "^9.1.7",

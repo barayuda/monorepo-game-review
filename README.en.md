@@ -271,7 +271,9 @@ Every game carries `id`, `title`, `description`, `genre`, `platform`, `developer
 
 Development follows red-green-refactor TDD. Service tests protect business rules and repository isolation; Fastify integration tests protect statuses, DTOs, persistence within one process, and sanitized error envelopes. React Testing Library covers visible loading/error/success states, validation, keyboard rating selection, cache races, and polling lifecycle. Playwright verifies catalogue → detail → submit → persisted review against real servers without reloading the page.
 
-The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build`. The E2E flow is a separate, higher-cost acceptance check. There is currently no arbitrary line-coverage target; tests are selected around requirements, boundaries, failure paths, and regressions rather than implementation details.
+The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build`. The E2E flow is a separate, higher-cost acceptance check.
+
+`pnpm test:coverage` runs the suite with measurement, and both `apps/api` and `apps/web` currently sit at 100% of statements, branches, functions, and lines, with thresholds that fail CI the moment that slips. The number was reached by testing behaviour and deleting code that turned out never to execute — two dead branches were found precisely because the coverage report pointed at them — not by adding empty assertions. Coverage is treated as a floor that holds regressions out rather than as the goal; tests are still chosen around requirements, boundaries, failure paths, and regressions. Any test written after its implementation is proven to have teeth by breaking that implementation and confirming the test fails first.
 
 ## 12. Assumptions
 

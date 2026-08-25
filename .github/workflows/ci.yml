@@ -44,6 +44,9 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Coverage thresholds
+        run: pnpm test:coverage
+
       - name: Build
         run: pnpm build
 

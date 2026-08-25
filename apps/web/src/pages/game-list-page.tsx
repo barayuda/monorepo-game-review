@@ -42,7 +42,8 @@ export function GameListPage(): React.ReactNode {
 		)
 	}
 
-	const games = gameListQuery.data ?? []
+	// Dua guard di atas sudah mempersempit `data`, jadi tidak perlu nilai cadangan.
+	const games = gameListQuery.data
 
 	return (
 		<section className="space-y-10">

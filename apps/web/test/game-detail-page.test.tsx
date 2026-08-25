@@ -605,4 +605,146 @@ describe('halaman detail game', () => {
 			await screen.findByRole('heading', { name: game.title }),
 		).toBeTruthy()
 	})
+
+	it('mengabaikan pengiriman kedua selagi yang pertama masih berjalan', async () => {
+		// Tombol sengaja tidak dinonaktifkan agar fokus keyboard tidak hilang, jadi
+		// penjaga terhadap kiriman ganda harus ada di handler.
+		let postCount = 0
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((input: string | URL | Request, init?: RequestInit) => {
+				if (init?.method === 'POST') {
+					postCount += 1
+					return new Promise<Response>(() => undefined)
+				}
+
+				return Promise.resolve(
+					jsonResponse(String(input).endsWith('/reviews') ? [] : game),
+				)
+			}),
+		)
+		renderGameDetail()
+		await waitForDetail()
+		const user = userEvent.setup()
+
+		await fillReviewForm(user, {
+			name: 'Nadia',
+			text: 'Ulasan yang sedang dikirim.',
+			rating: 5,
+		})
+		const submit = screen.getByRole('button', { name: 'Kirim ulasan' })
+		await user.click(submit)
+		await screen.findByRole('button', { name: 'Mengirim ulasan' })
+		await user.click(screen.getByRole('button', { name: 'Mengirim ulasan' }))
+
+		expect(postCount).toBe(1)
+	})
+
+	it('tetap memberi pesan yang terbaca ketika kegagalan bukan Error', async () => {
+		// Menangkap regresi ketika penolakan non-Error dirender sebagai [object Object].
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(() => Promise.reject('kegagalan tanpa objek Error')),
+		)
+		renderGameDetail()
+
+		// Penolakan non-Error bukan 4xx, jadi kebijakan retry mencobanya dua kali
+		// dengan backoff sebelum status error mengendap.
+		expect(
+			(await screen.findByRole('alert', {}, { timeout: 8_000 })).textContent,
+		).toContain('Detail game tidak dapat dimuat.')
+	})
+
+	it('menampilkan peringkat penghargaan pada detail game yang meraihnya', async () => {
+		// Fixture default sengaja tanpa award; cabang yang menampilkannya perlu bukti sendiri.
+		stubDetailApi()
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((input: string | URL | Request) =>
+				Promise.resolve(
+					String(input).endsWith('/reviews')
+						? jsonResponse([])
+						: jsonResponse({ ...game, awardYear: 2022, awardRank: 1 }),
+				),
+			),
+		)
+		renderGameDetail()
+
+		expect(await screen.findByText(/GOTY 2022/)).toBeTruthy()
+	})
+
+	it('memberi pesan terbaca ketika kegagalan ulasan bukan Error', async () => {
+		// Menangkap regresi ketika penolakan non-Error pada daftar ulasan bocor mentah ke UI.
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((input: string | URL | Request) =>
+				String(input).endsWith('/reviews')
+					? Promise.reject('kegagalan tanpa objek Error')
+					: Promise.resolve(jsonResponse(game)),
+			),
+		)
+		renderGameDetail()
+		await waitForDetail()
+
+		expect(
+			(await screen.findByRole('alert', {}, { timeout: 8_000 })).textContent,
+		).toContain('Ulasan tidak dapat dimuat.')
+	})
+
+	it('menampilkan galat umum ketika server menolak tanpa menyebut field', async () => {
+		// Issue dengan path yang tidak dikenal tidak boleh hilang tanpa jejak.
+		stubDetailApi({
+			postResult: {
+				status: 400,
+				body: {
+					code: 'VALIDATION_ERROR',
+					message: 'Ulasan ditolak oleh moderasi.',
+					issues: [{ path: ['unknown'], message: 'Tidak dikenal.' }],
+				},
+			},
+		})
+		renderGameDetail()
+		await waitForDetail()
+		const user = userEvent.setup()
+
+		await fillReviewForm(user, {
+			name: 'Nadia',
+			text: 'Ulasan yang valid di sisi klien.',
+			rating: 4,
+		})
+		await user.click(screen.getByRole('button', { name: 'Kirim ulasan' }))
+
+		expect(
+			await screen.findByText('Ulasan ditolak oleh moderasi.'),
+		).toBeTruthy()
+	})
+
+	it('memberi pesan terbaca ketika pengiriman gagal tanpa objek Error', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((input: string | URL | Request, init?: RequestInit) => {
+				if (init?.method === 'POST') {
+					return Promise.reject('kegagalan tanpa objek Error')
+				}
+
+				return Promise.resolve(
+					jsonResponse(String(input).endsWith('/reviews') ? [] : game),
+				)
+			}),
+		)
+		renderGameDetail()
+		await waitForDetail()
+		const user = userEvent.setup()
+
+		await fillReviewForm(user, {
+			name: 'Nadia',
+			text: 'Ulasan yang gagal terkirim.',
+			rating: 3,
+		})
+		await user.click(screen.getByRole('button', { name: 'Kirim ulasan' }))
+
+		expect(
+			await screen.findByText('Ulasan gagal disimpan. Coba lagi.'),
+		).toBeTruthy()
+	})
 })
