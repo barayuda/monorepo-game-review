@@ -5,6 +5,7 @@ coverage/
 playwright-report/
 test-results/
 .superpowers/
+CLAUDE.md
 .env
 .env.*
 !.env.example
