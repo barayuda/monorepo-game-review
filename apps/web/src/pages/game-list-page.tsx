@@ -9,7 +9,11 @@ export function GameListPage(): React.ReactNode {
 
 	if (gameListQuery.isPending) {
 		return (
-			<p aria-label="Memuat daftar game" role="status">
+			<p
+				aria-label="Memuat daftar game"
+				className="label-data text-ink-soft"
+				role="status"
+			>
 				Memuat daftar game
 			</p>
 		)
@@ -22,13 +26,13 @@ export function GameListPage(): React.ReactNode {
 				: 'Katalog game tidak dapat dimuat.'
 
 		return (
-			<section className="space-y-4" role="alert">
-				<h1 className="text-2xl font-bold tracking-tight">
+			<section className="max-w-xl space-y-4" role="alert">
+				<h1 className="font-display text-3xl font-extrabold">
 					Katalog game tidak tersedia
 				</h1>
-				<p className="text-slate-300">{message}</p>
+				<p className="text-ink-soft">{message}</p>
 				<button
-					className="rounded-lg bg-teal-300 px-4 py-2 font-semibold text-slate-950 hover:bg-teal-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-300"
+					className="label-data rounded-sm bg-action px-4 py-3 text-card transition-colors hover:bg-action-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
 					onClick={() => void gameListQuery.refetch()}
 					type="button"
 				>
@@ -38,18 +42,24 @@ export function GameListPage(): React.ReactNode {
 		)
 	}
 
+	const games = gameListQuery.data ?? []
+
 	return (
-		<section className="space-y-6">
-			<div className="space-y-2">
-				<p className="text-sm font-semibold uppercase tracking-[0.18em] text-teal-300">
-					Game Review
-				</p>
-				<h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-					Pilih game untuk membaca ulasan pemain
-				</h1>
+		<section className="space-y-10">
+			<div className="border-b border-rule pb-10">
+				<div className="max-w-2xl space-y-4">
+					<p className="label-data text-action">Katalog</p>
+					<h1 className="font-display text-4xl leading-[1.05] font-extrabold text-balance sm:text-5xl">
+						Baca dulu kata pemainnya, baru tekan beli.
+					</h1>
+					<p className="text-lg leading-relaxed text-ink-soft">
+						{games.length} game, dengan ulasan yang ditulis orang yang
+						benar-benar memainkannya.
+					</p>
+				</div>
 			</div>
-			<div className="grid gap-4 sm:grid-cols-2">
-				{gameListQuery.data?.map((game) => (
+			<div className="grid gap-5 sm:grid-cols-2">
+				{games.map((game) => (
 					<GameCard game={game} key={game.id} />
 				))}
 			</div>

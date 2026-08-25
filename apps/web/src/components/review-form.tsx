@@ -7,6 +7,9 @@ interface ReviewFormProps {
 	gameId: string
 }
 
+const fieldClass =
+	'w-full rounded-sm border border-rule bg-card px-3 py-2.5 text-ink outline-none placeholder:text-rule focus-visible:border-action focus-visible:ring-2 focus-visible:ring-action/20 aria-invalid:border-danger'
+
 /** Menjaga field ulasan sebagai state lokal dan mendelegasikan server-state ke mutation query. */
 export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 	const [reviewerName, setReviewerName] = useState('')
@@ -58,15 +61,21 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 	return (
 		<section
 			aria-labelledby="review-form-title"
-			className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6"
+			className="rounded-md border border-rule bg-card p-6"
 		>
-			<h2 className="text-2xl font-bold" id="review-form-title">
+			<h2
+				className="font-display text-xl font-extrabold text-ink"
+				id="review-form-title"
+			>
 				Tulis ulasan
 			</h2>
+			<p className="mt-1.5 text-sm text-ink-soft">
+				Ulasanmu langsung terlihat pemain lain.
+			</p>
 			<form className="mt-5 space-y-5" noValidate onSubmit={handleSubmit}>
 				<div className="space-y-2">
 					<label
-						className="block text-sm font-semibold"
+						className="label-data block text-ink-soft"
 						htmlFor="reviewer-name"
 					>
 						Nama reviewer
@@ -76,7 +85,7 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 							reviewerNameError ? 'reviewer-name-error' : undefined
 						}
 						aria-invalid={reviewerNameError ? true : undefined}
-						className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus-visible:border-teal-300 focus-visible:ring-2 focus-visible:ring-teal-300/30 aria-invalid:border-rose-400"
+						className={fieldClass}
 						id="reviewer-name"
 						onChange={(event) => {
 							setReviewerName(event.target.value)
@@ -85,19 +94,22 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 						value={reviewerName}
 					/>
 					{reviewerNameError ? (
-						<p className="text-sm text-rose-300" id="reviewer-name-error">
+						<p className="text-sm text-danger" id="reviewer-name-error">
 							{reviewerNameError}
 						</p>
 					) : null}
 				</div>
 				<div className="space-y-2">
-					<label className="block text-sm font-semibold" htmlFor="review-text">
+					<label
+						className="label-data block text-ink-soft"
+						htmlFor="review-text"
+					>
 						Teks ulasan
 					</label>
 					<textarea
 						aria-describedby={textError ? 'review-text-error' : undefined}
 						aria-invalid={textError ? true : undefined}
-						className="min-h-28 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus-visible:border-teal-300 focus-visible:ring-2 focus-visible:ring-teal-300/30 aria-invalid:border-rose-400"
+						className={`${fieldClass} min-h-28 leading-relaxed`}
 						id="review-text"
 						onChange={(event) => {
 							setText(event.target.value)
@@ -106,7 +118,7 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 						value={text}
 					/>
 					{textError ? (
-						<p className="text-sm text-rose-300" id="review-text-error">
+						<p className="text-sm text-danger" id="review-text-error">
 							{textError}
 						</p>
 					) : null}
@@ -121,7 +133,7 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 				/>
 				{createReviewMutation.isError ? (
 					<p
-						className="rounded-lg bg-rose-950/60 p-3 text-rose-200"
+						className="rounded-sm border border-danger/30 bg-danger/8 p-3 text-sm text-danger"
 						role="alert"
 					>
 						{createReviewMutation.error instanceof Error
@@ -130,7 +142,7 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 					</p>
 				) : null}
 				<button
-					className="rounded-lg bg-teal-300 px-4 py-2 font-semibold text-slate-950 hover:bg-teal-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-300"
+					className="label-data w-full rounded-sm bg-action px-4 py-3 text-card transition-colors hover:bg-action-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action disabled:opacity-60"
 					disabled={createReviewMutation.isPending}
 					type="submit"
 				>

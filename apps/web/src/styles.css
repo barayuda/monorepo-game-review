@@ -1,19 +1,70 @@
 @import 'tailwindcss';
 
+/*
+ * Token desain "Lembar Nilai": permukaan kertas terang untuk teks ulasan yang
+ * panjang, dengan dua warna bermakna. Biru menandai hal yang bisa ditindak
+ * pengguna, kuning kuningan menandai penilaian yang sudah diberikan. Tidak ada
+ * webfont eksternal supaya lingkungan Docker tetap berjalan tanpa jaringan.
+ */
+@theme {
+	--color-paper: #f0f1f4;
+	--color-card: #ffffff;
+	--color-ink: #11151b;
+	--color-ink-soft: #626c7a;
+	--color-rule: #dcdfe4;
+	--color-action: #1b4de4;
+	--color-action-strong: #1436a8;
+	--color-verdict: #c8811a;
+	--color-danger: #b3261e;
+
+	--font-display:
+		'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--font-body:
+		'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--font-mono:
+		ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+}
+
 @layer base {
 	body {
 		margin: 0;
-		font-family:
-			Inter,
-			ui-sans-serif,
-			system-ui,
-			-apple-system,
-			BlinkMacSystemFont,
-			'Segoe UI',
-			sans-serif;
+		background-color: var(--color-paper);
+		color: var(--color-ink);
+		font-family: var(--font-body);
+		-webkit-font-smoothing: antialiased;
 	}
 
 	* {
 		box-sizing: border-box;
+	}
+
+	/* Judul memakai tracking negatif agar kontras dengan label mono yang renggang. */
+	h1,
+	h2 {
+		letter-spacing: -0.03em;
+	}
+}
+
+@layer components {
+	/*
+	 * Label data: huruf kecil-kapital mono yang renggang. Dipakai konsisten untuk
+	 * platform, genre, jumlah ulasan, dan eyebrow supaya "data" selalu terbaca
+	 * berbeda dari prosa.
+	 */
+	.label-data {
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		font-weight: 500;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
 	}
 }

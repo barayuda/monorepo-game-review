@@ -16,27 +16,38 @@ export function RatingInput({
 			aria-invalid={error ? true : undefined}
 			className="space-y-2"
 		>
-			<legend className="text-sm font-semibold text-slate-200">Rating</legend>
-			<div className="flex flex-wrap gap-2">
-				{[1, 2, 3, 4, 5].map((rating) => (
-					<label className="cursor-pointer" key={rating}>
-						<input
-							checked={value === rating}
-							className="peer sr-only"
-							name="rating"
-							onChange={() => onChange(rating)}
-							type="radio"
-							value={rating}
-						/>
-						<span className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-lg text-amber-300 peer-checked:border-amber-300 peer-checked:bg-amber-300/10 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber-300">
-							<span aria-hidden="true">★</span>
-							<span className="sr-only">{rating} bintang</span>
-						</span>
-					</label>
-				))}
+			<legend className="label-data text-ink-soft">Rating</legend>
+			<div className="flex flex-wrap gap-1.5">
+				{[1, 2, 3, 4, 5].map((rating) => {
+					// Mengisi seluruh segmen sampai nilai terpilih agar terbaca sebagai skala, bukan lima tombol lepas.
+					const isFilled = value !== null && rating <= value
+
+					return (
+						<label className="cursor-pointer" key={rating}>
+							<input
+								checked={value === rating}
+								className="peer sr-only"
+								name="rating"
+								onChange={() => onChange(rating)}
+								type="radio"
+								value={rating}
+							/>
+							<span
+								className={`flex h-11 w-11 items-center justify-center rounded-sm border text-lg transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-action ${
+									isFilled
+										? 'border-verdict bg-verdict/12 text-verdict'
+										: 'border-ink-soft/35 bg-card text-ink-soft/45 hover:border-action hover:text-action'
+								}`}
+							>
+								<span aria-hidden="true">★</span>
+								<span className="sr-only">{rating} bintang</span>
+							</span>
+						</label>
+					)
+				})}
 			</div>
 			{error ? (
-				<p className="text-sm text-rose-300" id="rating-error">
+				<p className="text-sm text-danger" id="rating-error">
 					{error}
 				</p>
 			) : null}
