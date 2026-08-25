@@ -6,9 +6,11 @@ Selamat datang. Ini aplikasi full-stack kecil untuk menelusuri katalog game, mem
 
 ## Mulai Cepat untuk Reviewer
 
-Satu perintah, itu saja:
+Tiga baris, dari repositori kosong sampai aplikasi jalan:
 
 ```bash
+git clone https://github.com/barayuda/monorepo-game-review.git
+cd monorepo-game-review
 docker compose up --build
 ```
 
@@ -89,9 +91,11 @@ compose.yaml           Lingkungan reviewer lokal lengkap
 
 ## 6. Mulai Cepat dengan Docker
 
-Yang kamu butuhkan cuma Docker dengan Compose v2.
+Yang kamu butuhkan cuma Git dan Docker dengan Compose v2.
 
 ```bash
+git clone https://github.com/barayuda/monorepo-game-review.git
+cd monorepo-game-review
 docker compose up --build
 ```
 
@@ -285,6 +289,7 @@ Gate rilis utamanya `pnpm lint`, `pnpm typecheck`, `pnpm test`, dan `pnpm build`
 
 Supaya kamu tahu persis di lahan seperti apa aplikasi ini berdiri:
 
+- Brief mengizinkan skala rating 1–5 atau 1–10. Dipilih 1–5 karena lima pilihan cukup dibedakan pemain tanpa perlu penjelasan, dan skala tersimpan sebagai integer sehingga menggantinya cukup di satu invariant service plus schema Zod-nya.
 - Ini aplikasi assessment satu proses, dengan dataset kecil dan tepercaya, tanpa sistem akun.
 - Ulasan bisa telat terlihat pengguna lain sampai dua detik; polling hanya berjalan ketika query detail punya observer aktif, dan berhenti di tab background.
 - POST yang sukses adalah sumber kebenaran. Cache pengirim baru diperbarui setelah server merespons, lalu polling berikutnya merekonsiliasikannya dengan state server.

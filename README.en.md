@@ -5,6 +5,8 @@ English | [Bahasa Indonesia](README.md)
 ## Reviewer Quick Start
 
 ```bash
+git clone https://github.com/barayuda/monorepo-game-review.git
+cd monorepo-game-review
 docker compose up --build
 ```
 
@@ -83,9 +85,11 @@ compose.yaml           Complete local reviewer environment
 
 ## 6. Quick Start with Docker
 
-Prerequisite: Docker with Compose v2.
+Prerequisites: Git and Docker with Compose v2.
 
 ```bash
+git clone https://github.com/barayuda/monorepo-game-review.git
+cd monorepo-game-review
 docker compose up --build
 ```
 
@@ -269,6 +273,7 @@ The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `p
 
 ## 12. Assumptions
 
+- The brief allows either a 1–5 or a 1–10 rating scale. 1–5 was chosen because five options stay distinguishable to a player without a legend, and the scale is stored as an integer, so changing it means editing one service invariant and its Zod schema.
 - This is a single-process assessment application with a small, trusted dataset and no account system.
 - Review visibility for another user may lag by up to two seconds; polling runs only while the detail query has an active observer and does not continue in a background tab.
 - A successful POST is authoritative. The submitter's cache is updated only after the server responds, then later polls reconcile it with server state.
