@@ -6,6 +6,10 @@ server {
 	listen ${PORT};
 	server_name _;
 
+	# Resolver diambil dari /etc/resolv.conf container oleh entrypoint Nginx.
+	# Ini prasyarat untuk me-resolve upstream saat request, bukan saat start.
+	resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
+
 	root /usr/share/nginx/html;
 	index index.html;
 
@@ -54,9 +58,17 @@ server {
 
 	location /api/ {
 		# Tanpa suffix URI, Nginx mempertahankan prefix /api milik kontrak backend.
+		# Upstream sengaja melewati sebuah variabel. Dengan host literal, Nginx
+		# me-resolve DNS sekali saat memuat konfigurasi dan menolak start kalau
+		# nama itu belum ada -- persis yang terjadi ketika platform menyalakan
+		# kedua service bersamaan dan API belum terdaftar. Lewat variabel,
+		# resolusi terjadi per request: SPA tetap tersaji dan panggilan /api
+		# membalas 502 sampai API siap, alih-alih container gagal hidup.
+		#
 		# Skema ditulis di sini karena Render menyediakan alamat internal dalam
 		# bentuk host:port tanpa skema; trafik antar service memakai HTTP biasa.
-		proxy_pass http://${API_UPSTREAM};
+		set $api_upstream http://${API_UPSTREAM};
+		proxy_pass $api_upstream;
 		proxy_http_version 1.1;
 
 		# Instance gratis Render tidur setelah 15 menit tanpa trafik dan butuh

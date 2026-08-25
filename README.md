@@ -351,6 +351,8 @@ Cara membuatnya, sekali saja:
 
 Jangan memakai **New → Web Service**. Alur itu mengabaikan `render.yaml`, menebak runtime Node alih-alih Docker, dan hanya membuat satu service tanpa `API_UPSTREAM` yang dibutuhkan Nginx untuk memproksi `/api`.
 
+Kalau halamannya tampil tapi setiap panggilan `/api` membalas 502, berarti alamat internal API belum tepat. Nginx sengaja me-resolve upstream per request, sehingga nama yang belum ada muncul sebagai 502 alih-alih membuat container menolak hidup saat kedua service dinyalakan bersamaan. Cocokkan nilainya dengan **Connect → Internal** pada dashboard service API; sebagian hostname internal Render membawa sufiks acak, dan itulah alasan `API_UPSTREAM` diturunkan lewat `fromService` alih-alih ditulis tangan.
+
 Nginx menerima alamat API lewat `API_UPSTREAM`, diturunkan otomatis dari service API di private network Render, sehingga tidak ada URL yang perlu ditulis ulang manual. Template yang sama tetap dipakai Docker Compose lewat nilai default di Dockerfile, jadi satu berkas konfigurasi melayani keduanya.
 
 Yang perlu diketahui sebelum membagikan URL-nya:

@@ -329,6 +329,8 @@ Creating it, once:
 
 Do not use **New → Web Service**. That flow ignores `render.yaml`, guesses a Node runtime instead of Docker, and creates a single service with no `API_UPSTREAM` for Nginx to proxy `/api` to.
 
+If the page loads but every `/api` call returns 502, the API's internal address is wrong. Nginx deliberately resolves the upstream per request, so an unknown name surfaces as a 502 rather than a container that refuses to start when both services boot together. Compare the value against **Connect → Internal** on the API service's dashboard; some Render internal hostnames carry a random suffix, which is why `API_UPSTREAM` is derived through `fromService` rather than written by hand.
+
 Nginx receives the API address through `API_UPSTREAM`, derived from the API service on Render's private network, so no URL is ever transcribed by hand. Docker Compose uses the same template through the Dockerfile defaults, so one config file serves both.
 
 Worth knowing before sharing the URL:

@@ -26,7 +26,9 @@ FROM nginx:1.29-alpine AS runtime
 # sehingga port dan alamat upstream berasal dari environment alih-alih dibekukan
 # ke dalam image. Filter dibatasi pada dua variabel ini agar variabel milik
 # Nginx sendiri ($host, $uri, dan sejenisnya) tidak ikut tergantikan.
-ENV NGINX_ENVSUBST_FILTER="^(PORT|API_UPSTREAM)\$"
+# Entrypoint hanya mengekspor NGINX_LOCAL_RESOLVERS kalau flag ini diaktifkan.
+ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
+ENV NGINX_ENVSUBST_FILTER="^(PORT|API_UPSTREAM|NGINX_LOCAL_RESOLVERS)\$"
 
 # Default menjaga Docker Compose berjalan tanpa konfigurasi tambahan; platform
 # hosting menimpanya lewat environment variable.
