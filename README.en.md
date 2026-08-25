@@ -327,11 +327,11 @@ Creating it, once:
 1. In the Render dashboard choose **New → Blueprint**, point it at this repository, and select the branch holding `render.yaml`.
 2. There is no second step. Runtime, region, plan, health check, deploy gating, and the API's internal address all come from `render.yaml`.
 
-Do not use **New → Web Service**. That flow ignores `render.yaml`, guesses a Node runtime instead of Docker, and creates a single service with no `API_UPSTREAM` for Nginx to proxy `/api` to.
+Do not use **New → Web Service**. That flow ignores `render.yaml`, guesses a Node runtime instead of Docker, and creates a single service with no `API_ORIGIN` for Nginx to proxy `/api` to.
 
-If the page loads but every `/api` call returns 502, the API's internal address is wrong. Nginx deliberately resolves the upstream per request, so an unknown name surfaces as a 502 rather than a container that refuses to start when both services boot together. Compare the value against **Connect → Internal** on the API service's dashboard; some Render internal hostnames carry a random suffix, which is why `API_UPSTREAM` is derived through `fromService` rather than written by hand.
+Nginx receives the API address through `API_ORIGIN`, and it deliberately points at the API's public hostname rather than its private network address. The reason is a free plan limit: free web services may send private network traffic but may not receive it, so the API's internal address is correct yet never answers. Going through the public router also lets a first request wake a sleeping instance. The cost is one hand-written URL in `render.yaml`; once the API moves to a paid plan, switch back to `fromService` so traffic stays off the public internet.
 
-Nginx receives the API address through `API_UPSTREAM`, derived from the API service on Render's private network, so no URL is ever transcribed by hand. Docker Compose uses the same template through the Dockerfile defaults, so one config file serves both.
+Because the upstream is now HTTPS, Nginx sends SNI and sets the `Host` header to the upstream host. Render's router selects a service from that header, so forwarding the frontend's host would land on the wrong service. Nginx also resolves the upstream per request rather than at startup, so the order the two services boot in cannot leave the container refusing to start. Docker Compose uses the same template through the Dockerfile defaults, so one config file serves both.
 
 Worth knowing before sharing the URL:
 

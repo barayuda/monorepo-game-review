@@ -349,11 +349,11 @@ Cara membuatnya, sekali saja:
 1. Di dashboard Render pilih **New → Blueprint**, arahkan ke repositori ini, lalu pilih branch tempat `render.yaml` berada.
 2. Tidak ada langkah kedua. Runtime, region, plan, health check, gating deploy, dan alamat internal API semuanya dibaca dari `render.yaml`.
 
-Jangan memakai **New → Web Service**. Alur itu mengabaikan `render.yaml`, menebak runtime Node alih-alih Docker, dan hanya membuat satu service tanpa `API_UPSTREAM` yang dibutuhkan Nginx untuk memproksi `/api`.
+Jangan memakai **New → Web Service**. Alur itu mengabaikan `render.yaml`, menebak runtime Node alih-alih Docker, dan hanya membuat satu service tanpa `API_ORIGIN` yang dibutuhkan Nginx untuk memproksi `/api`.
 
-Kalau halamannya tampil tapi setiap panggilan `/api` membalas 502, berarti alamat internal API belum tepat. Nginx sengaja me-resolve upstream per request, sehingga nama yang belum ada muncul sebagai 502 alih-alih membuat container menolak hidup saat kedua service dinyalakan bersamaan. Cocokkan nilainya dengan **Connect → Internal** pada dashboard service API; sebagian hostname internal Render membawa sufiks acak, dan itulah alasan `API_UPSTREAM` diturunkan lewat `fromService` alih-alih ditulis tangan.
+Nginx menerima alamat API lewat `API_ORIGIN`, dan nilainya sengaja menunjuk hostname publik API, bukan alamat private network-nya. Alasannya ada di batas paket gratis Render: web service gratis boleh mengirim trafik private tapi tidak boleh menerimanya, sehingga alamat internal API akan benar tetapi tidak pernah dijawab. Melewati router publik juga membuat instance yang tertidur ikut dibangunkan request pertama. Konsekuensinya satu URL ditulis manual di `render.yaml`; begitu API naik ke paket berbayar, kembalikan ke `fromService` supaya trafik tidak keluar-masuk internet.
 
-Nginx menerima alamat API lewat `API_UPSTREAM`, diturunkan otomatis dari service API di private network Render, sehingga tidak ada URL yang perlu ditulis ulang manual. Template yang sama tetap dipakai Docker Compose lewat nilai default di Dockerfile, jadi satu berkas konfigurasi melayani keduanya.
+Karena upstream-nya kini HTTPS, Nginx mengirim SNI dan mengisi header `Host` dengan host upstream. Router Render memilih service berdasarkan header itu, jadi meneruskan host frontend akan mendarat di service yang salah. Nginx juga me-resolve upstream per request, bukan saat start, supaya urutan penyalaan kedua service tidak membuat container gagal hidup. Template yang sama tetap dipakai Docker Compose lewat nilai default di Dockerfile, jadi satu berkas konfigurasi melayani keduanya.
 
 Yang perlu diketahui sebelum membagikan URL-nya:
 

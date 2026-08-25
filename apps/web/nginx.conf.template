@@ -65,10 +65,15 @@ server {
 		# resolusi terjadi per request: SPA tetap tersaji dan panggilan /api
 		# membalas 502 sampai API siap, alih-alih container gagal hidup.
 		#
-		# Skema ditulis di sini karena Render menyediakan alamat internal dalam
-		# bentuk host:port tanpa skema; trafik antar service memakai HTTP biasa.
-		set $api_upstream http://${API_UPSTREAM};
-		proxy_pass $api_upstream;
+		# API_ORIGIN memuat skema sekaligus host, karena tujuannya berbeda antar
+		# lingkungan: Compose memakai http ke service tetangga, sedangkan Render
+		# memakai https ke hostname publik API.
+		set $api_origin ${API_ORIGIN};
+		proxy_pass $api_origin;
+
+		# Diperlukan saat upstream-nya https: tanpa SNI, TLS handshake ke
+		# hostname bersama seperti *.onrender.com ditolak.
+		proxy_ssl_server_name on;
 		proxy_http_version 1.1;
 
 		# Instance gratis Render tidur setelah 15 menit tanpa trafik dan butuh
@@ -77,7 +82,10 @@ server {
 		proxy_connect_timeout 90s;
 		proxy_send_timeout 90s;
 		proxy_read_timeout 90s;
-		proxy_set_header Host $host;
+		# Host diisi host upstream, bukan host browser. Router Render memilih
+		# service berdasarkan header ini, jadi meneruskan host frontend akan
+		# mengarahkan request ke service yang salah.
+		proxy_set_header Host $proxy_host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header X-Forwarded-Proto $scheme;

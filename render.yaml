@@ -38,11 +38,16 @@ services:
     dockerfilePath: ./apps/web/Dockerfile
     dockerContext: .
     envVars:
-      # Alamat API di private network Render, dalam bentuk host:port tanpa
-      # skema; template Nginx yang menambahkan `http://`. Nilainya diturunkan
-      # dari service lain agar tidak ada URL yang ditulis ulang secara manual.
-      - key: API_UPSTREAM
-        fromService:
-          type: web
-          name: game-review-api
-          property: hostport
+      # Sengaja hostname publik API, bukan alamat private network-nya.
+      #
+      # Di paket gratis, web service boleh mengirim trafik private tapi tidak
+      # boleh menerimanya, sehingga `fromService` dengan property `hostport`
+      # menghasilkan alamat yang benar namun tidak pernah dijawab API. Melewati
+      # router publik Render juga membuat instance yang tertidur ikut dibangunkan
+      # oleh request pertama; lewat private network hal itu tidak terjadi.
+      #
+      # Konsekuensinya URL ini ditulis manual dan harus ikut berubah kalau nama
+      # service berubah. Begitu API dinaikkan ke paket berbayar, kembalikan ke
+      # `fromService` agar trafik tidak keluar-masuk internet.
+      - key: API_ORIGIN
+        value: https://game-review-api.onrender.com

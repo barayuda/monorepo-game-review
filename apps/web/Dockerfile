@@ -28,12 +28,12 @@ FROM nginx:1.29-alpine AS runtime
 # Nginx sendiri ($host, $uri, dan sejenisnya) tidak ikut tergantikan.
 # Entrypoint hanya mengekspor NGINX_LOCAL_RESOLVERS kalau flag ini diaktifkan.
 ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
-ENV NGINX_ENVSUBST_FILTER="^(PORT|API_UPSTREAM|NGINX_LOCAL_RESOLVERS)\$"
+ENV NGINX_ENVSUBST_FILTER="^(PORT|API_ORIGIN|NGINX_LOCAL_RESOLVERS)\$"
 
 # Default menjaga Docker Compose berjalan tanpa konfigurasi tambahan; platform
 # hosting menimpanya lewat environment variable.
 ENV PORT=80
-ENV API_UPSTREAM=api:3000
+ENV API_ORIGIN=http://api:3000
 
 COPY apps/web/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /workspace/apps/web/dist /usr/share/nginx/html
