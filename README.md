@@ -26,16 +26,16 @@ Prinsipnya sederhana: batas tanggung jawab yang jelas lebih berharga daripada se
 
 Semua yang diminta, beserta tempat kamu bisa mengeceknya sendiri:
 
-| Persyaratan                              | Implementasi                                                                                                                |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Frontend dan backend terpisah            | `apps/web` dan `apps/api` hanya berkomunikasi melalui endpoint REST `/api`.                                                 |
-| Model domain Game dan Review             | Modul, service, dan kontrak repository terpisah berada di `apps/api/src/modules`.                                           |
-| Data awal                                | Tiga game dan tiga ulasan dimuat ke repository in-memory yang baru.                                                         |
-| Menelusuri dan melihat game              | `/` menampilkan daftar game; `/games/:gameId` menampilkan detail dan ulasan.                                                |
-| Mengirim ulasan tervalidasi              | Browser dan API memvalidasi field wajib; service menegakkan panjang setelah trimming serta rating integer 1 sampai 5.       |
-| Ulasan terlihat tanpa restart            | Pengirim langsung melihat ulasan yang sudah dikonfirmasi server; viewer detail aktif lain menyusul lewat polling dua detik. |
-| Verifikasi otomatis                      | Vitest mencakup service/route backend dan perilaku frontend; Playwright mencakup alur pengguna utama.                       |
-| Lingkungan reviewer dengan satu perintah | `docker compose up --build` membangun dan menjalankan aplikasi lengkap.                                                     |
+| Persyaratan                              | Implementasi                                                                                                                                                |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend dan backend terpisah            | `apps/web` dan `apps/api` hanya berkomunikasi melalui endpoint REST `/api`.                                                                                 |
+| Model domain Game dan Review             | Modul, service, dan kontrak repository terpisah berada di `apps/api/src/modules`.                                                                           |
+| Data awal                                | Delapan game peraih Game of the Year dan sebelas ulasan dimuat ke repository in-memory yang baru; satu game sengaja tanpa ulasan agar empty state terlihat. |
+| Menelusuri dan melihat game              | `/` menampilkan daftar game; `/games/:gameId` menampilkan detail dan ulasan.                                                                                |
+| Mengirim ulasan tervalidasi              | Browser dan API memvalidasi field wajib; service menegakkan panjang setelah trimming serta rating integer 1 sampai 5.                                       |
+| Ulasan terlihat tanpa restart            | Pengirim langsung melihat ulasan yang sudah dikonfirmasi server; viewer detail aktif lain menyusul lewat polling dua detik.                                 |
+| Verifikasi otomatis                      | Vitest mencakup service/route backend dan perilaku frontend; Playwright mencakup alur pengguna utama.                                                       |
+| Lingkungan reviewer dengan satu perintah | `docker compose up --build` membangun dan menjalankan aplikasi lengkap.                                                                                     |
 
 ## 3. Layar dan Alur Utama
 

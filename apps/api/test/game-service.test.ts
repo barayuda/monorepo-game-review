@@ -6,34 +6,25 @@ import { InMemoryGameRepository } from '../src/modules/games/in-memory-game-repo
 import { ApplicationNotFoundError } from '../src/shared/application-not-found-error.js'
 
 describe('GameService', () => {
-	it('returns all seeded games', () => {
+	it('returns every seeded game exactly once', () => {
 		const service = new GameService(new InMemoryGameRepository())
 
-		expect(service.listGames()).toEqual([
-			{
-				id: 'elden-ring',
-				title: 'Elden Ring',
-				description:
-					'Explore the Lands Between in an open-world action role-playing game.',
-				genre: 'Action RPG',
-				platform: 'PlayStation 5',
-			},
-			{
-				id: 'hades',
-				title: 'Hades',
-				description:
-					'Battle out of the underworld in this roguelike dungeon crawler.',
-				genre: 'Roguelike',
-				platform: 'Nintendo Switch',
-			},
-			{
-				id: 'stardew-valley',
-				title: 'Stardew Valley',
-				description: 'Build a new life on a farm in a charming country town.',
-				genre: 'Simulation',
-				platform: 'PC',
-			},
-		])
+		const games = service.listGames()
+
+		expect(games).toHaveLength(8)
+		expect(new Set(games.map((game) => game.id)).size).toBe(games.length)
+		// Entri pertama dicek utuh supaya bentuk DTO dan urutan katalog tetap terkunci.
+		expect(games[0]).toEqual({
+			id: 'elden-ring',
+			title: 'Elden Ring',
+			description:
+				'Game of the Year 2022. Explore the Lands Between in an open-world action role-playing game.',
+			genre: 'Action RPG',
+			platform: 'PlayStation 5',
+		})
+		for (const game of games) {
+			expect(Object.values(game).every((value) => value.length > 0)).toBe(true)
+		}
 	})
 
 	it('returns a seeded game by id', () => {
@@ -43,7 +34,7 @@ describe('GameService', () => {
 			id: 'elden-ring',
 			title: 'Elden Ring',
 			description:
-				'Explore the Lands Between in an open-world action role-playing game.',
+				'Game of the Year 2022. Explore the Lands Between in an open-world action role-playing game.',
 			genre: 'Action RPG',
 			platform: 'PlayStation 5',
 		})

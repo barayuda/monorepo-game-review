@@ -16,31 +16,17 @@ describe('API routes', () => {
 		const response = await app.inject({ method: 'GET', url: '/api/games' })
 
 		expect(response.statusCode).toBe(200)
-		expect(response.json()).toEqual([
-			{
-				id: 'elden-ring',
-				title: 'Elden Ring',
-				description:
-					'Explore the Lands Between in an open-world action role-playing game.',
-				genre: 'Action RPG',
-				platform: 'PlayStation 5',
-			},
-			{
-				id: 'hades',
-				title: 'Hades',
-				description:
-					'Battle out of the underworld in this roguelike dungeon crawler.',
-				genre: 'Roguelike',
-				platform: 'Nintendo Switch',
-			},
-			{
-				id: 'stardew-valley',
-				title: 'Stardew Valley',
-				description: 'Build a new life on a farm in a charming country town.',
-				genre: 'Simulation',
-				platform: 'PC',
-			},
-		])
+		const games = response.json()
+		expect(games).toHaveLength(8)
+		expect(new Set(games.map((game: { id: string }) => game.id)).size).toBe(8)
+		expect(games[0]).toEqual({
+			id: 'elden-ring',
+			title: 'Elden Ring',
+			description:
+				'Game of the Year 2022. Explore the Lands Between in an open-world action role-playing game.',
+			genre: 'Action RPG',
+			platform: 'PlayStation 5',
+		})
 	})
 
 	it('returns a seeded game by id', async () => {
@@ -57,7 +43,7 @@ describe('API routes', () => {
 			id: 'elden-ring',
 			title: 'Elden Ring',
 			description:
-				'Explore the Lands Between in an open-world action role-playing game.',
+				'Game of the Year 2022. Explore the Lands Between in an open-world action role-playing game.',
 			genre: 'Action RPG',
 			platform: 'PlayStation 5',
 		})
