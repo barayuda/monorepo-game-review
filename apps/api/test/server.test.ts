@@ -26,4 +26,22 @@ describe('API server', () => {
 		expect(response.status).toBe(200)
 		expect(await response.json()).toEqual({ status: 'ok' })
 	})
+
+	it('refuses to start on a malformed PORT instead of binding a random one', async () => {
+		// Number('') is 0, which binds an arbitrary ephemeral port. Failing loudly is
+		// the only way a misconfigured container is distinguishable from a healthy one.
+		const originalPort = process.env.PORT
+		process.env.PORT = '   '
+
+		try {
+			const { startServer } = await import('../src/server.js')
+			await expect(startServer()).rejects.toThrow()
+		} finally {
+			if (originalPort === undefined) {
+				delete process.env.PORT
+			} else {
+				process.env.PORT = originalPort
+			}
+		}
+	})
 })

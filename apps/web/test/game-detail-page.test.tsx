@@ -50,6 +50,11 @@ function stubDetailApi({
 	postResult,
 	onPost,
 }: DetailApiOptions = {}): void {
+	// Server tiruan menyimpan hasil POST, sehingga polling dua detik mengembalikan
+	// kebenaran yang sama seperti server asli. Tanpa ini, poll yang mendarat
+	// sesudah mutation mengembalikan daftar lama dan membuat test gagal acak.
+	const storedReviews = [...reviews]
+
 	vi.stubGlobal(
 		'fetch',
 		vi.fn((input: string | URL | Request, init?: RequestInit) => {
@@ -66,11 +71,14 @@ function stubDetailApi({
 						createdAt: '2026-08-24T10:00:00.000Z',
 					} satisfies ReviewDto,
 				}
+				if (result.status === 201) {
+					storedReviews.unshift(result.body as ReviewDto)
+				}
 				return Promise.resolve(jsonResponse(result.body, result.status))
 			}
 
 			return Promise.resolve(
-				jsonResponse(url.endsWith('/reviews') ? reviews : game),
+				jsonResponse(url.endsWith('/reviews') ? storedReviews : game),
 			)
 		}),
 	)

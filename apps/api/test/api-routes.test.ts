@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { buildApp } from '../src/app.js'
+import { ApplicationNotFoundError } from '../src/shared/application-not-found-error.js'
 
 const appsToClose: Array<ReturnType<typeof buildApp>> = []
 
@@ -342,6 +343,26 @@ describe('API routes', () => {
 		expect(response.json()).toEqual({
 			code: 'GAME_NOT_FOUND',
 			message: 'Game not found',
+		})
+	})
+
+	it('reports a non-game missing resource as generic not-found', async () => {
+		// Menangkap regresi ketika resource selain game dilaporkan sebagai GAME_NOT_FOUND.
+		const app = buildApp()
+		appsToClose.push(app)
+		app.get('/test-only/missing-review', () => {
+			throw new ApplicationNotFoundError('Review', 'review-404')
+		})
+
+		const response = await app.inject({
+			method: 'GET',
+			url: '/test-only/missing-review',
+		})
+
+		expect(response.statusCode).toBe(404)
+		expect(response.json()).toEqual({
+			code: 'NOT_FOUND',
+			message: 'Review not found',
 		})
 	})
 

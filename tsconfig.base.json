@@ -4,6 +4,7 @@
 		"target": "ES2024",
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"verbatimModuleSyntax": true
 	}
 }

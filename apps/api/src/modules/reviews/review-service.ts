@@ -29,9 +29,16 @@ export class ReviewService {
 	listReviews(gameId: string): Review[] {
 		this.gameService.getGameById(gameId)
 
+		// `toReversed` menaruh yang terbaru disimpan di depan, lalu pengurutan stabil
+		// menjaga posisi itu ketika `createdAt` sama persis. `toSorted` dipakai agar
+		// array milik repository tidak ikut diurutkan di tempat.
 		return this.reviewRepository
 			.findByGameId(gameId)
-			.sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+			.toReversed()
+			.toSorted(
+				(left, right) =>
+					Date.parse(right.createdAt) - Date.parse(left.createdAt),
+			)
 	}
 
 	/**

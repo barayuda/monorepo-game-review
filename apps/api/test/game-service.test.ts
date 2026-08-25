@@ -62,8 +62,10 @@ describe('GameService', () => {
 		}
 
 		expect(thrownError).toBeInstanceOf(ApplicationNotFoundError)
+		// Resource disimpan sebagai field supaya transport bisa memetakannya ke kode yang tepat.
 		expect(thrownError).toMatchObject({
-			code: 'NOT_FOUND',
+			resource: 'Game',
+			id: 'unknown-game',
 			message: "Game with id 'unknown-game' was not found",
 		})
 	})

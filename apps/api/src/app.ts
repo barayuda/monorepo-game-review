@@ -31,8 +31,17 @@ const routeNotFoundError: ApiErrorDto = {
 }
 
 /**
- * Mengenali error parser dan content Fastify yang menandakan request client
- * tidak dapat diproses, tanpa mengandalkan pesan internal framework.
+ * Memetakan resource domain ke kode error publiknya. Resource yang belum
+ * terdaftar jatuh ke `NOT_FOUND` generik, bukan mengaku sebagai game.
+ */
+const notFoundCodeByResource: Record<string, ApiErrorDto['code']> = {
+	Game: 'GAME_NOT_FOUND',
+}
+
+/**
+ * Mengenali error parser Fastify yang menandakan body request tidak dapat
+ * dibaca. Sengaja dibatasi pada 400 saja: 413 dan 415 punya arti berbeda dan
+ * tidak boleh ikut dilabeli sebagai kegagalan validasi field.
  */
 const isFastifyClientRequestError = (
 	error: unknown,
@@ -41,8 +50,7 @@ const isFastifyClientRequestError = (
 		error instanceof Error &&
 		'statusCode' in error &&
 		typeof error.statusCode === 'number' &&
-		error.statusCode >= 400 &&
-		error.statusCode < 500
+		error.statusCode === 400
 	)
 }
 
@@ -56,7 +64,10 @@ const toHttpError = (
 	if (error instanceof ApplicationNotFoundError) {
 		return {
 			statusCode: 404,
-			body: { code: 'GAME_NOT_FOUND', message: 'Game not found' },
+			body: {
+				code: notFoundCodeByResource[error.resource] ?? 'NOT_FOUND',
+				message: `${error.resource} not found`,
+			},
 		}
 	}
 
@@ -106,7 +117,11 @@ const toHttpError = (
  */
 export const buildApp = (options: BuildAppOptions = {}) => {
 	// Senyap saat test agar output suite bersih; selain itu request dan kegagalan wajib tercatat.
-	const app = Fastify({ logger: process.env.NODE_ENV !== 'test' })
+	const app = Fastify({
+		// Payload terbesar yang sah hanya beberapa kilobyte; default 1 MiB terlalu longgar.
+		bodyLimit: 16 * 1024,
+		logger: process.env.NODE_ENV !== 'test',
+	})
 	const gameService = new GameService(new InMemoryGameRepository())
 	const reviewService = new ReviewService(
 		gameService,

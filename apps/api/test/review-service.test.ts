@@ -98,6 +98,32 @@ describe('ReviewService', () => {
 		).toMatchObject({ reviewerName, text, rating: 5 })
 	})
 
+	it('lists reviews created in the same millisecond newest first', () => {
+		// Jam yang dipatok membuat dua ulasan punya createdAt identik; urutan stabil
+		// dari repository saja akan menaruh yang lebih lama di depan.
+		let sequence = 0
+		const service = new ReviewService(
+			new GameService(new InMemoryGameRepository()),
+			new InMemoryReviewRepository([]),
+			() => `review-${(sequence += 1)}`,
+			() => new Date('2025-02-01T12:00:00.000Z'),
+		)
+		service.createReview('elden-ring', {
+			reviewerName: 'Pengirim pertama',
+			text: 'Ulasan pertama.',
+			rating: 4,
+		})
+		service.createReview('elden-ring', {
+			reviewerName: 'Pengirim kedua',
+			text: 'Ulasan kedua.',
+			rating: 5,
+		})
+
+		const reviews = service.listReviews('elden-ring')
+
+		expect(reviews.map((review) => review.id)).toEqual(['review-2', 'review-1'])
+	})
+
 	it("throws a typed not-found error when listing an unknown game's reviews", () => {
 		const service = new ReviewService(
 			new GameService(new InMemoryGameRepository()),
