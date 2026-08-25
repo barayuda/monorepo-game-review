@@ -132,13 +132,14 @@ Satu catatan penting: jangan simpan secret di repositori. Aplikasi ini memang ti
 
 ## 8. Menjalankan Pengujian
 
-Empat perintah ini adalah gerbang utamanya:
+Lima perintah ini adalah gerbang utamanya:
 
 ```bash
-pnpm lint       # ESLint dan pemeriksaan Prettier
-pnpm typecheck  # pemeriksaan TypeScript strict di setiap package workspace
-pnpm test       # seluruh suite Vitest untuk service, HTTP, dan UI
-pnpm build      # build production untuk seluruh package
+pnpm lint           # ESLint dan pemeriksaan Prettier
+pnpm typecheck      # pemeriksaan TypeScript strict di setiap package workspace
+pnpm test           # seluruh suite Vitest untuk service, HTTP, dan UI
+pnpm test:coverage  # suite yang sama, dengan ambang coverage 100% ditegakkan
+pnpm build          # build production untuk seluruh package
 ```
 
 Selama ngoding, biasanya kamu cuma butuh suite yang sedang dikerjakan:
@@ -161,7 +162,7 @@ Playwright sengaja menyalakan proses API dan Vite yang sebenarnya, dan menolak m
 
 `pnpm install` memasang hook Husky lewat script `prepare`. Sebelum tiap commit, lint-staged menjalankan perbaikan ESLint dan Prettier hanya pada file staged yang didukung, jadi file lain di working tree kamu aman. Sebelum tiap push, hook menjalankan `pnpm test` lalu `pnpm typecheck`. Semua hook memanggil `corepack pnpm` supaya versi pnpm-nya konsisten dengan yang dipin repositori ini.
 
-Playwright sengaja tidak ikut di hook lokal supaya commit dan push tetap terasa ringan. Jalankan `pnpm test:e2e` secara eksplisit saat acceptance release atau lewat workflow CI terpisah. GitHub Actions tetap jadi gate otoritatif di tiap push dan pull request, menjalankan instalasi dependency frozen, lint, typecheck, Vitest, dan build.
+Playwright sengaja tidak ikut di hook lokal supaya commit dan push tetap terasa ringan. Jalankan `pnpm test:e2e` secara eksplisit saat acceptance release atau lewat workflow CI terpisah. GitHub Actions tetap jadi gate otoritatif di tiap push dan pull request, menjalankan instalasi dependency frozen, lint, typecheck, Vitest, ambang coverage, dan build.
 
 Kalau benar-benar mentok, `git commit --no-verify` atau `git push --no-verify` bisa melewati hook lokal. **Tapi ini betul-betul pintu darurat: CI dan seluruh gate release tetap wajib, dan pemeriksaan yang dilewati harus dijalankan sebelum integrasi atau release.**
 
@@ -285,7 +286,7 @@ Bagian ini menjawab pertanyaan "kenapa ini, bukan itu?" untuk tiap teknologi bes
 
 Pengembangannya mengikuti TDD red-green-refactor. Test service menjaga aturan bisnis dan isolasi repository; test integrasi Fastify menjaga status, DTO, persistence dalam satu proses, plus envelope error yang sudah disanitasi. React Testing Library menutup status loading/error/sukses yang terlihat, validasi, pemilihan rating lewat keyboard, race pada cache, dan lifecycle polling. Playwright memverifikasi alur katalog → detail → kirim → ulasan tersimpan terhadap server sungguhan, tanpa halaman dimuat ulang.
 
-Gate rilis utamanya `pnpm lint`, `pnpm typecheck`, `pnpm test`, dan `pnpm build`. Alur E2E berdiri sendiri sebagai acceptance check dengan biaya lebih tinggi.
+Gate rilis utamanya `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:coverage`, dan `pnpm build`. Alur E2E berdiri sendiri sebagai acceptance check dengan biaya lebih tinggi.
 
 `pnpm test:coverage` menjalankan suite dengan pengukuran coverage, dan `apps/api` maupun `apps/web` saat ini berada di 100% untuk statement, branch, function, dan line, dengan ambang batas yang membuat CI gagal begitu angkanya turun. Angka itu dicapai dengan menguji perilaku dan membuang kode yang ternyata tidak pernah tereksekusi, bukan dengan menambah assertion kosong: dua cabang mati ditemukan justru karena laporan coverage menyorotinya. Coverage di sini diperlakukan sebagai lantai yang menahan regresi, bukan sebagai tujuan; test tetap dipilih berdasarkan persyaratan, batas sistem, jalur kegagalan, dan regresi. Test yang ditulis setelah implementasinya dibuktikan bergigi dengan cara merusak implementasi itu dan memastikan test-nya gagal lebih dulu.
 

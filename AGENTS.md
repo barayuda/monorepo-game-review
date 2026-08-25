@@ -8,7 +8,7 @@ This Node.js 24 pnpm workspace keeps the Fastify backend in `apps/api` and the R
 
 - `corepack pnpm install --frozen-lockfile` installs the pinned workspace dependencies.
 - `pnpm dev` starts both applications; Vite proxies `/api` to the API.
-- `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` run the release gates.
+- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:coverage`, and `pnpm build` run the release gates.
 - `pnpm test:e2e:install` installs Chromium; `pnpm test:e2e` runs the Playwright acceptance flow separately.
 - `docker compose up --build` starts the reviewer environment at `http://localhost:8080`.
 

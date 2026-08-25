@@ -123,10 +123,11 @@ Do not put secrets in the repository. The current application needs no `.env` fi
 ## 8. Running Tests
 
 ```bash
-pnpm lint       # ESLint plus Prettier check
-pnpm typecheck  # strict TypeScript checks in every workspace package
-pnpm test       # all Vitest service, HTTP, and UI suites
-pnpm build      # production builds for all packages
+pnpm lint           # ESLint plus Prettier check
+pnpm typecheck      # strict TypeScript checks in every workspace package
+pnpm test           # all Vitest service, HTTP, and UI suites
+pnpm test:coverage  # the same suites with the 100% coverage thresholds enforced
+pnpm build          # production builds for all packages
 ```
 
 Run a focused suite while developing:
@@ -149,7 +150,7 @@ Playwright starts real API and Vite processes and deliberately refuses to reuse 
 
 `pnpm install` installs the Husky hooks through the `prepare` script. Before each commit, lint-staged runs ESLint fixes and Prettier only on supported staged files; unrelated working-tree files are left alone. Before each push, the hook runs `pnpm test` and `pnpm typecheck`. The hooks call `corepack pnpm`, so they use the pnpm version pinned by this repository.
 
-Playwright is intentionally excluded from local hooks. Run `pnpm test:e2e` explicitly for release acceptance or in a separate CI workflow. GitHub Actions is the authoritative gate on every push and pull request and runs frozen dependency installation, lint, typecheck, Vitest, and build.
+Playwright is intentionally excluded from local hooks. Run `pnpm test:e2e` explicitly for release acceptance or in a separate CI workflow. GitHub Actions is the authoritative gate on every push and pull request and runs frozen dependency installation, lint, typecheck, Vitest, coverage thresholds, and build.
 
 In an emergency, `git commit --no-verify` or `git push --no-verify` bypasses local hooks. **Use this only to unblock an exceptional situation: CI and all release gates remain mandatory, and bypassed checks must still be run before integration or release.**
 
@@ -271,7 +272,7 @@ Every game carries `id`, `title`, `description`, `genre`, `platform`, `developer
 
 Development follows red-green-refactor TDD. Service tests protect business rules and repository isolation; Fastify integration tests protect statuses, DTOs, persistence within one process, and sanitized error envelopes. React Testing Library covers visible loading/error/success states, validation, keyboard rating selection, cache races, and polling lifecycle. Playwright verifies catalogue → detail → submit → persisted review against real servers without reloading the page.
 
-The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build`. The E2E flow is a separate, higher-cost acceptance check.
+The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:coverage`, and `pnpm build`. The E2E flow is a separate, higher-cost acceptance check.
 
 `pnpm test:coverage` runs the suite with measurement, and both `apps/api` and `apps/web` currently sit at 100% of statements, branches, functions, and lines, with thresholds that fail CI the moment that slips. The number was reached by testing behaviour and deleting code that turned out never to execute — two dead branches were found precisely because the coverage report pointed at them — not by adding empty assertions. Coverage is treated as a floor that holds regressions out rather than as the goal; tests are still chosen around requirements, boundaries, failure paths, and regressions. Any test written after its implementation is proven to have teeth by breaking that implementation and confirming the test fails first.
 
