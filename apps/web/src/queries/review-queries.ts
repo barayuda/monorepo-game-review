@@ -51,6 +51,10 @@ export function useCreateReviewMutation(gameId: string) {
 				createdReview,
 				...currentReviews.filter((review) => review.id !== createdReview.id),
 			])
+			// Sengaja tidak memanggil invalidateQueries di sini. Polling dua detik sudah
+			// merekonsiliasi cache dengan server, sementara refetch tambahan akan
+			// menggantikan permintaan yang sedang berjalan dan membuat perlombaan antara
+			// GET basi dan hasil mutation tidak lagi bisa diamati oleh test.
 		},
 	})
 }

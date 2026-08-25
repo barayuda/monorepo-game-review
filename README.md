@@ -185,7 +185,7 @@ curl -X POST http://localhost:3000/api/games/elden-ring/reviews \
 
 Setiap game membawa `id`, `title`, `description`, `genre`, `platform`, `developer`, dan `releaseYear`. Game yang masuk daftar Game of the Year juga membawa `awardYear` dan `awardRank`; rank 1 berarti pemenang tahun itu, sedangkan 2 dan 3 adalah nominasi tahun yang sama yang diurutkan oleh katalog ini, karena The Game Awards tidak mengumumkan juara dua dan tiga.
 
-Aturan validasinya: `reviewerName` harus 1–80 karakter setelah trimming, `text` 1–2000 karakter, dan `rating` wajib integer 1 sampai 5. Kalau ada yang meleset, API menjawab dengan envelope yang konsisten: ID game tak dikenal jadi `GAME_NOT_FOUND`, request tidak valid jadi `VALIDATION_ERROR`, route tak dikenal jadi `NOT_FOUND`, dan kegagalan tak terduga jadi `INTERNAL_ERROR` yang sudah disanitasi, jadi pesan internal tidak pernah bocor ke client.
+Aturan validasinya: `reviewerName` harus 1–80 karakter setelah trimming, `text` 1–2000 karakter, dan `rating` wajib integer 1 sampai 5. Kalau ada yang meleset, API menjawab dengan envelope yang konsisten: ID game tak dikenal jadi `GAME_NOT_FOUND`, request tidak valid jadi `VALIDATION_ERROR`, route tak dikenal jadi `NOT_FOUND`, kegagalan request 4xx lain seperti media type yang tidak didukung jadi `BAD_REQUEST` dengan status aslinya, dan kegagalan tak terduga jadi `INTERNAL_ERROR` yang sudah disanitasi, jadi pesan internal tidak pernah bocor ke client.
 
 ## 10. Keputusan Arsitektur
 

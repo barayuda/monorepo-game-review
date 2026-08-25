@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { ApiClientError } from '../src/api/http-client.js'
 import {
 	createAppQueryClient,
 	shouldRetryQuery,
@@ -20,8 +21,23 @@ describe('query foundation', () => {
 		])
 	})
 
+	it('tetap mengulang kegagalan server 5xx yang mungkin sementara', () => {
+		// 4xx adalah jawaban akhir; 5xx sering hanya blip dan layak dicoba ulang.
+		expect(
+			shouldRetryQuery(
+				0,
+				new ApiClientError('Internal', 500, 'INTERNAL_ERROR'),
+			),
+		).toBe(true)
+	})
+
 	it('tidak mengulang query ketika API sudah mengembalikan kesalahan 4xx', () => {
-		expect(shouldRetryQuery(0, { status: 404 })).toBe(false)
+		expect(
+			shouldRetryQuery(
+				0,
+				new ApiClientError('Game not found', 404, 'GAME_NOT_FOUND'),
+			),
+		).toBe(false)
 	})
 
 	it('membatasi retry kegagalan non-4xx dan memakai stale time yang konservatif', () => {

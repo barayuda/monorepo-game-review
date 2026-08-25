@@ -39,9 +39,8 @@ const notFoundCodeByResource: Record<string, ApiErrorDto['code']> = {
 }
 
 /**
- * Mengenali error parser Fastify yang menandakan body request tidak dapat
- * dibaca. Sengaja dibatasi pada 400 saja: 413 dan 415 punya arti berbeda dan
- * tidak boleh ikut dilabeli sebagai kegagalan validasi field.
+ * Mengenali error Fastify yang menandakan request client tidak dapat diproses,
+ * tanpa mengandalkan pesan internal framework.
  */
 const isFastifyClientRequestError = (
 	error: unknown,
@@ -50,7 +49,8 @@ const isFastifyClientRequestError = (
 		error instanceof Error &&
 		'statusCode' in error &&
 		typeof error.statusCode === 'number' &&
-		error.statusCode === 400
+		error.statusCode >= 400 &&
+		error.statusCode < 500
 	)
 }
 
@@ -99,10 +99,21 @@ const toHttpError = (
 	}
 
 	if (isFastifyClientRequestError(error)) {
-		return {
-			statusCode: error.statusCode,
-			body: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
-		}
+		// Hanya body yang gagal diparse yang benar-benar kegagalan validasi. Status
+		// lain seperti 413 dan 415 tetap dikembalikan apa adanya dengan kode generik,
+		// supaya client tidak salah mengira ada field yang perlu diperbaiki.
+		return error.statusCode === 400
+			? {
+					statusCode: 400,
+					body: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+				}
+			: {
+					statusCode: error.statusCode,
+					body: {
+						code: 'BAD_REQUEST',
+						message: 'Request could not be processed',
+					},
+				}
 	}
 
 	return {

@@ -184,6 +184,59 @@ describe('API routes', () => {
 		)
 	})
 
+	it.each([
+		['rating at the lower bound', { rating: 1 }],
+		['rating at the upper bound', { rating: 5 }],
+		['reviewerName at exactly 80 characters', { reviewerName: 'a'.repeat(80) }],
+		['text at exactly 2000 characters', { text: 'b'.repeat(2000) }],
+		[
+			'reviewerName that trims down to exactly 80 characters',
+			{ reviewerName: `  ${'a'.repeat(80)}  ` },
+		],
+	])('accepts %s', async (_label, overrides) => {
+		// Hanya sisi penolakan yang diuji di lapisan HTTP; tanpa ini, memperketat
+		// schema Zod route (misalnya max 79) tidak akan membuat satu test pun gagal.
+		const app = buildApp()
+		appsToClose.push(app)
+
+		const response = await app.inject({
+			method: 'POST',
+			url: '/api/games/elden-ring/reviews',
+			payload: {
+				reviewerName: 'Alex Morgan',
+				text: 'A memorable adventure.',
+				rating: 4,
+				...overrides,
+			},
+		})
+
+		expect(response.statusCode).toBe(201)
+	})
+
+	it.each([
+		['a missing field', { text: 'A memorable adventure.', rating: 4 }],
+		[
+			'a rating sent as a string',
+			{
+				reviewerName: 'Alex Morgan',
+				text: 'A memorable adventure.',
+				rating: '4',
+			},
+		],
+	])('rejects %s', async (_label, payload) => {
+		const app = buildApp()
+		appsToClose.push(app)
+
+		const response = await app.inject({
+			method: 'POST',
+			url: '/api/games/elden-ring/reviews',
+			payload,
+		})
+
+		expect(response.statusCode).toBe(400)
+		expect(response.json()).toMatchObject({ code: 'VALIDATION_ERROR' })
+	})
+
 	it('rejects a rating below one', async () => {
 		const app = buildApp()
 		appsToClose.push(app)
@@ -407,6 +460,26 @@ describe('API routes', () => {
 		expect(response.json()).toEqual({
 			code: 'VALIDATION_ERROR',
 			message: 'Validation failed',
+		})
+	})
+
+	it('keeps an unsupported media type at its own status and code', async () => {
+		// Menangkap regresi ketika 415 dilaporkan sebagai kegagalan validasi field,
+		// atau lebih buruk lagi jatuh ke 500 karena tidak dikenali.
+		const app = buildApp()
+		appsToClose.push(app)
+
+		const response = await app.inject({
+			method: 'POST',
+			url: '/api/games/elden-ring/reviews',
+			headers: { 'content-type': 'application/xml' },
+			payload: '<review/>',
+		})
+
+		expect(response.statusCode).toBe(415)
+		expect(response.json()).toEqual({
+			code: 'BAD_REQUEST',
+			message: 'Request could not be processed',
 		})
 	})
 

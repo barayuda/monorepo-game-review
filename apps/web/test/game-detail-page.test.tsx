@@ -376,6 +376,15 @@ describe('halaman detail game', () => {
 		// Menangkap regresi ketika hasil GET yang dimulai lebih dahulu menimpa DTO mutation di cache.
 		let resolveStaleReviews: (response: Response) => void = () => undefined
 		let staleTransportSettled = false
+		let reviewsRequestCount = 0
+		const createdReview: ReviewDto = {
+			id: 'review-new',
+			gameId: game.id,
+			reviewerName: 'Nadia',
+			text: 'Ulasan yang harus bertahan.',
+			rating: 5,
+			createdAt: '2026-08-24T10:00:00.000Z',
+		}
 		const staleReviewsRequest = new Promise<Response>((resolve) => {
 			resolveStaleReviews = resolve
 		})
@@ -384,27 +393,20 @@ describe('halaman detail game', () => {
 			vi.fn((input: string | URL | Request, init?: RequestInit) => {
 				const url = String(input)
 				if (init?.method === 'POST') {
-					return Promise.resolve(
-						jsonResponse(
-							{
-								id: 'review-new',
-								gameId: game.id,
-								reviewerName: 'Nadia',
-								text: 'Ulasan yang harus bertahan.',
-								rating: 5,
-								createdAt: '2026-08-24T10:00:00.000Z',
-							} satisfies ReviewDto,
-							201,
-						),
-					)
+					return Promise.resolve(jsonResponse(createdReview, 201))
 				}
 
-				return url.endsWith('/reviews')
-					? staleReviewsRequest.then((response) => {
-							staleTransportSettled = true
-							return response
-						})
-					: Promise.resolve(jsonResponse(game))
+				if (!url.endsWith('/reviews')) {
+					return Promise.resolve(jsonResponse(game))
+				}
+
+				reviewsRequestCount += 1
+				// Setiap GET ulasan tertahan sampai test melepasnya, sehingga respons basi
+				// benar-benar mendarat setelah POST selesai.
+				return staleReviewsRequest.then((response) => {
+					staleTransportSettled = true
+					return response
+				})
 			}),
 		)
 		const queryClient = renderGameDetail()
@@ -417,9 +419,13 @@ describe('halaman detail game', () => {
 			rating: 5,
 		})
 		await user.click(screen.getByRole('button', { name: 'Kirim ulasan' }))
-		await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
-		expect(screen.getByRole('listitem').textContent).toContain('Nadia')
+		await waitFor(() =>
+			expect(screen.getAllByRole('listitem')[0]?.textContent).toContain(
+				'Nadia',
+			),
+		)
 
+		// GET basi ini dimulai sebelum POST dan hanya memuat ulasan lama.
 		resolveStaleReviews(jsonResponse([existingReview]))
 		await waitFor(() => {
 			expect(staleTransportSettled).toBe(true)
@@ -430,9 +436,11 @@ describe('halaman detail game', () => {
 			).toBe(0)
 		})
 
+		// Respons basi tidak boleh menghapus ulasan yang baru dikirim.
+		expect(screen.getByText('Ulasan yang harus bertahan.')).toBeTruthy()
 		expect(screen.getAllByRole('listitem')).toHaveLength(1)
-		expect(screen.getByRole('listitem').textContent).toContain('Nadia')
 		expect(screen.queryByText(existingReview.text)).toBeNull()
+		expect(reviewsRequestCount).toBeGreaterThan(0)
 	})
 
 	it('mengosongkan seluruh field setelah pengiriman berhasil', async () => {

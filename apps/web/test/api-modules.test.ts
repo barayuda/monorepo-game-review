@@ -30,7 +30,7 @@ describe('API modules', () => {
 		await expect(gamesApi.list()).resolves.toMatchObject([
 			{ id: 'game-1', title: 'Bumi' },
 		])
-		expect(fetchStub).toHaveBeenCalledWith('/api/games', undefined)
+		expect(fetchStub.mock.calls[0]?.[0]).toBe('/api/games')
 	})
 
 	it('mengirim payload ulasan ke game yang dipilih', async () => {

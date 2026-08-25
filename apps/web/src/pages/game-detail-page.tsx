@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 import { AwardBadge } from '../components/award-badge.js'
 import { ReviewForm } from '../components/review-form.js'
@@ -33,11 +33,27 @@ export function GameDetailPage(): React.ReactNode {
 				: 'Detail game tidak dapat dimuat.'
 
 		return (
-			<section className="max-w-xl space-y-3" role="alert">
+			<section className="max-w-xl space-y-4" role="alert">
 				<h1 className="font-display text-3xl font-bold">
 					Detail game tidak tersedia
 				</h1>
 				<p className="text-ink-soft">{message}</p>
+				{/* Tanpa dua jalan keluar ini, URL game yang salah membuat pembaca terjebak. */}
+				<div className="flex flex-wrap items-center gap-3">
+					<button
+						className="label-field rounded-sm bg-action px-4 py-3 text-card transition-colors hover:bg-action-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+						onClick={() => void gameQuery.refetch()}
+						type="button"
+					>
+						Coba lagi
+					</button>
+					<Link
+						className="label-data text-action underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+						to="/"
+					>
+						Kembali ke katalog
+					</Link>
+				</div>
 			</section>
 		)
 	}

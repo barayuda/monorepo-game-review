@@ -173,7 +173,7 @@ curl -X POST http://localhost:3000/api/games/elden-ring/reviews \
 
 Every game carries `id`, `title`, `description`, `genre`, `platform`, `developer`, and `releaseYear`. Games on a Game of the Year list also carry `awardYear` and `awardRank`; rank 1 is that year's winner, while 2 and 3 are nominees from the same year ordered by this catalogue, because The Game Awards does not publish second and third place.
 
-`reviewerName` must contain 1–80 characters after trimming, `text` 1–2000 characters, and `rating` must be an integer from 1 to 5. Unknown game IDs return `GAME_NOT_FOUND`, invalid requests return `VALIDATION_ERROR`, unknown routes return `NOT_FOUND`, and unexpected failures return a sanitized `INTERNAL_ERROR` envelope.
+`reviewerName` must contain 1–80 characters after trimming, `text` 1–2000 characters, and `rating` must be an integer from 1 to 5. Unknown game IDs return `GAME_NOT_FOUND`, invalid requests return `VALIDATION_ERROR`, unknown routes return `NOT_FOUND`, other 4xx failures such as an unsupported media type return `BAD_REQUEST` at their own status, and unexpected failures return a sanitized `INTERNAL_ERROR` envelope.
 
 ## 10. Architectural Decisions
 

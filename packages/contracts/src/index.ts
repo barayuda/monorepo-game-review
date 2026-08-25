@@ -46,9 +46,21 @@ export interface ValidationIssueDto {
 	message: string
 }
 
-/** Envelope kegagalan API yang stabil untuk dikonsumsi semua transport client. */
+/**
+ * Envelope kegagalan API yang stabil untuk dikonsumsi semua transport client.
+ *
+ * `VALIDATION_ERROR` khusus untuk field yang tidak lolos pemeriksaan, sehingga
+ * client dapat menempelkannya ke input. Kegagalan request lain di rentang 4xx,
+ * seperti media type yang tidak didukung atau body yang terlalu besar, memakai
+ * `BAD_REQUEST` dengan status HTTP yang tetap menjelaskan penyebabnya.
+ */
 export interface ApiErrorDto {
-	code: 'NOT_FOUND' | 'GAME_NOT_FOUND' | 'VALIDATION_ERROR' | 'INTERNAL_ERROR'
+	code:
+		| 'NOT_FOUND'
+		| 'GAME_NOT_FOUND'
+		| 'VALIDATION_ERROR'
+		| 'BAD_REQUEST'
+		| 'INTERNAL_ERROR'
 	message: string
 	issues?: ValidationIssueDto[]
 }

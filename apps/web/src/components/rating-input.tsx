@@ -1,23 +1,40 @@
+import type { Ref } from 'react'
+
 interface RatingInputProps {
 	error?: string
+	errorId: string
+	/** Nama grup radio; unik per formulir agar dua formulir tidak saling mengunci pilihan. */
+	name: string
 	onChange: (rating: number) => void
+	/** Menunjuk radio pertama supaya formulir bisa memindahkan fokus ke sini saat rating belum dipilih. */
+	ref?: Ref<HTMLInputElement>
 	value: number | null
 }
 
 /** Kontrol radio native menjaga pilihan rating 1–5 dapat dioperasikan dengan keyboard dan pembaca layar. */
 export function RatingInput({
 	error,
+	errorId,
+	name,
 	onChange,
+	ref,
 	value,
 }: RatingInputProps): React.ReactNode {
 	return (
-		<fieldset
-			aria-describedby={error ? 'rating-error' : undefined}
-			aria-invalid={error ? true : undefined}
-			className="space-y-2"
-		>
+		<fieldset className="space-y-2">
 			<legend className="label-field text-ink">Rating</legend>
-			<div className="flex flex-wrap gap-1.5">
+			{/*
+			 * `aria-invalid` dan `aria-describedby` dipasang pada radiogroup, bukan pada
+			 * fieldset: fieldset memetakan ke role `group` yang tidak mendukung
+			 * `aria-invalid`, sehingga statusnya tidak akan diumumkan.
+			 */}
+			<div
+				aria-describedby={error ? errorId : undefined}
+				aria-invalid={error ? true : undefined}
+				aria-label="Rating"
+				className="flex flex-wrap gap-1.5"
+				role="radiogroup"
+			>
 				{[1, 2, 3, 4, 5].map((rating) => {
 					// Mengisi seluruh segmen sampai nilai terpilih agar terbaca sebagai skala, bukan lima tombol lepas.
 					const isFilled = value !== null && rating <= value
@@ -27,8 +44,9 @@ export function RatingInput({
 							<input
 								checked={value === rating}
 								className="peer sr-only"
-								name="rating"
+								name={name}
 								onChange={() => onChange(rating)}
+								ref={rating === 1 ? ref : undefined}
 								type="radio"
 								value={rating}
 							/>
@@ -47,7 +65,7 @@ export function RatingInput({
 				})}
 			</div>
 			{error ? (
-				<p className="text-sm text-danger" id="rating-error" role="alert">
+				<p className="text-sm text-danger" id={errorId} role="alert">
 					{error}
 				</p>
 			) : null}

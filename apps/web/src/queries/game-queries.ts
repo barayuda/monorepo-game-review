@@ -8,11 +8,11 @@ export const gameQueries = {
 	list: () =>
 		queryOptions({
 			queryKey: gameQueryKeys.lists(),
-			queryFn: gamesApi.list,
+			queryFn: ({ signal }) => gamesApi.list(signal),
 		}),
 	byId: (gameId: string) =>
 		queryOptions({
 			queryKey: gameQueryKeys.detail(gameId),
-			queryFn: () => gamesApi.getById(gameId),
+			queryFn: ({ signal }) => gamesApi.getById(gameId, signal),
 		}),
 }

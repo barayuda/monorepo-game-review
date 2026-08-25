@@ -1,15 +1,19 @@
 import { QueryClient } from '@tanstack/react-query'
 
+import { ApiClientError } from '../api/http-client.js'
+
 /** Menentukan apakah kegagalan query layak dicoba lagi tanpa membebani error klien 4xx. */
 export function shouldRetryQuery(
 	failureCount: number,
 	error: unknown,
 ): boolean {
-	if (typeof error === 'object' && error !== null && 'status' in error) {
-		const status = error.status
-		if (typeof status === 'number' && status >= 400 && status < 500) {
-			return false
-		}
+	// Error transport aplikasi sudah bertipe, jadi tidak perlu menebak bentuknya.
+	if (
+		error instanceof ApiClientError &&
+		error.status >= 400 &&
+		error.status < 500
+	) {
+		return false
 	}
 
 	return failureCount < 2
