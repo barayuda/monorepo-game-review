@@ -16,7 +16,7 @@ export function RatingInput({
 			aria-invalid={error ? true : undefined}
 			className="space-y-2"
 		>
-			<legend className="label-data text-ink-soft">Rating</legend>
+			<legend className="label-field text-ink">Rating</legend>
 			<div className="flex flex-wrap gap-1.5">
 				{[1, 2, 3, 4, 5].map((rating) => {
 					// Mengisi seluruh segmen sampai nilai terpilih agar terbaca sebagai skala, bukan lima tombol lepas.
@@ -47,7 +47,7 @@ export function RatingInput({
 				})}
 			</div>
 			{error ? (
-				<p className="text-sm text-danger" id="rating-error">
+				<p className="text-sm text-danger" id="rating-error" role="alert">
 					{error}
 				</p>
 			) : null}

@@ -33,7 +33,7 @@ export function GameDetailPage(): React.ReactNode {
 
 		return (
 			<section className="max-w-xl space-y-3" role="alert">
-				<h1 className="font-display text-3xl font-extrabold">
+				<h1 className="font-display text-3xl font-bold">
 					Detail game tidak tersedia
 				</h1>
 				<p className="text-ink-soft">{message}</p>
@@ -49,13 +49,13 @@ export function GameDetailPage(): React.ReactNode {
 
 	return (
 		<div className="space-y-10">
-			<div className="border-b border-rule pb-10">
+			<div className="rise border-b border-rule pb-10">
 				<div className="max-w-3xl space-y-4">
 					<p className="label-data text-action">Detail game</p>
-					<h1 className="font-display text-4xl leading-[1.05] font-extrabold text-balance sm:text-5xl">
+					<h1 className="font-display text-4xl leading-[1.02] font-bold text-balance sm:text-6xl">
 						{game.title}
 					</h1>
-					<p className="text-lg leading-relaxed text-ink-soft">
+					<p className="prose-review text-xl text-ink-soft">
 						{game.description}
 					</p>
 					<div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-soft">
@@ -71,7 +71,37 @@ export function GameDetailPage(): React.ReactNode {
 			{/* Membaca lebih dulu, menulis kemudian: kolom ulasan memimpin dan formulir menempel di sisi kanan. */}
 			<div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start">
 				<div className="space-y-6">
-					{reviewsQuery.isPending ? (
+					{reviewsQuery.data ? (
+						<>
+							{/* Polling gagal tidak boleh menghapus ulasan yang sedang dibaca; cukup beri tahu bahwa datanya berhenti diperbarui. */}
+							{reviewsQuery.isError ? (
+								<p
+									className="label-data rounded-sm border border-danger/30 bg-danger/8 px-4 py-3 text-danger"
+									role="status"
+								>
+									Gagal memperbarui. Menampilkan ulasan terakhir.
+								</p>
+							) : null}
+							<section
+								aria-labelledby="review-list-title"
+								className="space-y-4"
+							>
+								<h2
+									className="font-display text-2xl font-bold"
+									id="review-list-title"
+								>
+									Ulasan pemain
+								</h2>
+								<ReviewList reviews={reviewsQuery.data} />
+							</section>
+						</>
+					) : reviewsQuery.isError ? (
+						<p className="text-danger" role="alert">
+							{reviewsQuery.error instanceof Error
+								? reviewsQuery.error.message
+								: 'Ulasan tidak dapat dimuat.'}
+						</p>
+					) : (
 						<p
 							aria-label="Memuat ulasan"
 							className="label-data text-ink-soft"
@@ -79,25 +109,12 @@ export function GameDetailPage(): React.ReactNode {
 						>
 							Memuat ulasan
 						</p>
-					) : reviewsQuery.isError ? (
-						<p className="text-danger" role="alert">
-							{reviewsQuery.error instanceof Error
-								? reviewsQuery.error.message
-								: 'Ulasan tidak dapat dimuat.'}
-						</p>
-					) : reviewsQuery.data ? (
-						<section aria-labelledby="review-list-title" className="space-y-4">
-							<h2
-								className="font-display text-2xl font-extrabold"
-								id="review-list-title"
-							>
-								Ulasan pemain
-							</h2>
-							<ReviewList reviews={reviewsQuery.data} />
-						</section>
-					) : null}
+					)}
 				</div>
-				<div className="lg:sticky lg:top-8">
+				<div
+					className="rise lg:sticky lg:top-8"
+					style={{ '--rise-delay': '140ms' } as React.CSSProperties}
+				>
 					<ReviewForm gameId={gameId} />
 				</div>
 			</div>

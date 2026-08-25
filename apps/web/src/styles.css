@@ -1,62 +1,116 @@
+/*
+ * Font di-bundle sebagai dependency npm, bukan dari CDN, supaya build Docker
+ * tetap berjalan tanpa jaringan sekaligus lepas dari stack font sistem.
+ */
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/crimson-pro';
+@import '@fontsource-variable/jetbrains-mono';
 @import 'tailwindcss';
 
 /*
- * Token desain "Lembar Nilai": permukaan kertas terang untuk teks ulasan yang
- * panjang, dengan dua warna bermakna. Biru menandai hal yang bisa ditindak
- * pengguna, kuning kuningan menandai penilaian yang sudah diberikan. Tidak ada
- * webfont eksternal supaya lingkungan Docker tetap berjalan tanpa jaringan.
+ * Token desain "Lembar Nilai". Tiga huruf dengan tugas berbeda: Space Grotesk
+ * untuk suara antarmuka, Crimson Pro untuk prosa ulasan yang dibaca panjang,
+ * dan JetBrains Mono untuk apa pun yang berupa data. Biru menandai hal yang
+ * bisa ditindak, kuning kuningan menandai penilaian yang sudah diberikan.
  */
 @theme {
-	--color-paper: #f0f1f4;
+	--color-paper: #eceef2;
 	--color-card: #ffffff;
-	--color-ink: #11151b;
-	--color-ink-soft: #626c7a;
-	--color-rule: #dcdfe4;
-	--color-action: #1b4de4;
-	--color-action-strong: #1436a8;
-	--color-verdict: #c8811a;
+	--color-ink: #0d1117;
+	--color-ink-soft: #5b6472;
+	--color-rule: #ccd2db;
+	--color-action: #1b3ee4;
+	--color-action-strong: #122ba6;
+	--color-verdict: #96610f;
 	--color-danger: #b3261e;
 
 	--font-display:
-		'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-	--font-body:
-		'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-	--font-mono:
-		ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+		'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-body: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-prose: 'Crimson Pro Variable', ui-serif, Georgia, serif;
+	--font-mono: 'JetBrains Mono Variable', ui-monospace, Menlo, monospace;
 }
 
 @layer base {
 	body {
 		margin: 0;
-		background-color: var(--color-paper);
 		color: var(--color-ink);
 		font-family: var(--font-body);
 		-webkit-font-smoothing: antialiased;
+		/*
+		 * Kertas bergaris tipis, bukan warna rata: menegaskan metafora lembar
+		 * nilai dan memberi kedalaman tanpa menarik perhatian dari konten.
+		 */
+		background-color: var(--color-paper);
+		background-image:
+			repeating-linear-gradient(
+				to bottom,
+				transparent 0 31px,
+				color-mix(in srgb, var(--color-rule) 90%, transparent) 31px 32px
+			),
+			radial-gradient(
+				ellipse 80% 50% at 50% -10%,
+				color-mix(in srgb, var(--color-action) 11%, transparent),
+				transparent
+			);
+		background-attachment: fixed;
 	}
 
 	* {
 		box-sizing: border-box;
 	}
 
-	/* Judul memakai tracking negatif agar kontras dengan label mono yang renggang. */
+	/* Judul rapat, label mono renggang: kontras itu yang membawa kepribadian. */
 	h1,
 	h2 {
-		letter-spacing: -0.03em;
+		font-family: var(--font-display);
+		letter-spacing: -0.035em;
 	}
 }
 
 @layer components {
-	/*
-	 * Label data: huruf kecil-kapital mono yang renggang. Dipakai konsisten untuk
-	 * platform, genre, jumlah ulasan, dan eyebrow supaya "data" selalu terbaca
-	 * berbeda dari prosa.
-	 */
+	/* Label data: mono kapital renggang untuk platform, genre, hitungan, eyebrow. */
 	.label-data {
 		font-family: var(--font-mono);
 		font-size: 0.6875rem;
-		font-weight: 500;
-		letter-spacing: 0.12em;
+		font-weight: 600;
+		letter-spacing: 0.14em;
 		text-transform: uppercase;
+	}
+
+	/* Label form dibaca sambil mengetik, jadi pakai ukuran teks biasa, bukan mono kapital. */
+	.label-field {
+		font-family: var(--font-display);
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+
+	/* Prosa ulasan memakai serif supaya teks panjang terbaca sebagai tulisan, bukan UI. */
+	.prose-review {
+		font-family: var(--font-prose);
+		font-size: 1.0625rem;
+		font-weight: 400;
+		line-height: 1.65;
+	}
+
+	/*
+	 * Satu urutan masuk halaman: elemen naik berurutan sekali saat dimuat.
+	 * Delay diatur lewat --rise-delay agar tiap kartu menyusul tetangganya.
+	 */
+	.rise {
+		animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+		animation-delay: var(--rise-delay, 0ms);
+	}
+}
+
+@keyframes rise {
+	from {
+		opacity: 0;
+		transform: translateY(0.75rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }
 
@@ -65,6 +119,7 @@
 	*::before,
 	*::after {
 		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
 	}
 }

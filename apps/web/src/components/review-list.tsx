@@ -10,7 +10,7 @@ interface ReviewListProps {
 export function ReviewList({ reviews }: ReviewListProps): React.ReactNode {
 	if (reviews.length === 0) {
 		return (
-			<p className="rounded-md border border-dashed border-rule bg-card/60 p-6 text-ink-soft">
+			<p className="prose-review rounded-md border border-dashed border-rule bg-card/60 p-6 text-ink-soft">
 				Belum ada ulasan untuk game ini.
 			</p>
 		)
@@ -20,7 +20,7 @@ export function ReviewList({ reviews }: ReviewListProps): React.ReactNode {
 		<ul className="space-y-3">
 			{reviews.map((review) => (
 				<li
-					className="rounded-md border border-rule bg-card p-5"
+					className="rise rounded-md border border-rule bg-card p-5"
 					key={review.id}
 				>
 					<div className="flex flex-wrap items-start justify-between gap-3">
@@ -30,7 +30,7 @@ export function ReviewList({ reviews }: ReviewListProps): React.ReactNode {
 							value={review.rating}
 						/>
 					</div>
-					<p className="mt-3 leading-relaxed text-ink-soft">{review.text}</p>
+					<p className="prose-review mt-3 text-ink">{review.text}</p>
 				</li>
 			))}
 		</ul>

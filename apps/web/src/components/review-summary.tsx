@@ -25,10 +25,10 @@ export function ReviewSummary({
 	return (
 		<section
 			aria-label="Ringkasan penilaian"
-			className="flex flex-wrap items-center gap-x-8 gap-y-5 rounded-md border border-rule bg-card px-6 py-5"
+			className="rise flex flex-wrap items-center gap-x-8 gap-y-5 rounded-md border border-rule bg-card px-6 py-5"
 		>
 			<div className="flex items-center gap-4">
-				<p className="font-display text-5xl leading-none font-extrabold tabular-nums">
+				<p className="font-display text-7xl leading-none font-bold tracking-[-0.05em] tabular-nums">
 					{formatted}
 				</p>
 				<div className="space-y-1.5">

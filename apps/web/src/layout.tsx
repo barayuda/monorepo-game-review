@@ -8,7 +8,7 @@ export function AppLayout({ children }: PropsWithChildren): React.ReactNode {
 			<header className="border-b border-rule bg-card">
 				<div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
 					<Link
-						className="font-display text-lg font-extrabold tracking-tight text-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-action"
+						className="font-display text-lg font-bold tracking-tight text-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-action"
 						to="/"
 					>
 						Game Review

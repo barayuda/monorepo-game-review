@@ -27,7 +27,7 @@ export function GameListPage(): React.ReactNode {
 
 		return (
 			<section className="max-w-xl space-y-4" role="alert">
-				<h1 className="font-display text-3xl font-extrabold">
+				<h1 className="font-display text-3xl font-bold">
 					Katalog game tidak tersedia
 				</h1>
 				<p className="text-ink-soft">{message}</p>
@@ -46,21 +46,21 @@ export function GameListPage(): React.ReactNode {
 
 	return (
 		<section className="space-y-10">
-			<div className="border-b border-rule pb-10">
+			<div className="rise border-b border-rule pb-10">
 				<div className="max-w-2xl space-y-4">
 					<p className="label-data text-action">Katalog</p>
-					<h1 className="font-display text-4xl leading-[1.05] font-extrabold text-balance sm:text-5xl">
+					<h1 className="font-display text-4xl leading-[1.02] font-bold text-balance sm:text-6xl">
 						Baca dulu kata pemainnya, baru tekan beli.
 					</h1>
-					<p className="text-lg leading-relaxed text-ink-soft">
+					<p className="prose-review text-xl text-ink-soft">
 						{games.length} game, dengan ulasan yang ditulis orang yang
 						benar-benar memainkannya.
 					</p>
 				</div>
 			</div>
 			<div className="grid gap-5 sm:grid-cols-2">
-				{games.map((game) => (
-					<GameCard game={game} key={game.id} />
+				{games.map((game, index) => (
+					<GameCard game={game} index={index} key={game.id} />
 				))}
 			</div>
 		</section>

@@ -64,7 +64,7 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 			className="rounded-md border border-rule bg-card p-6"
 		>
 			<h2
-				className="font-display text-xl font-extrabold text-ink"
+				className="font-display text-xl font-bold text-ink"
 				id="review-form-title"
 			>
 				Tulis ulasan
@@ -94,7 +94,11 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 						value={reviewerName}
 					/>
 					{reviewerNameError ? (
-						<p className="text-sm text-danger" id="reviewer-name-error">
+						<p
+							className="text-sm text-danger"
+							id="reviewer-name-error"
+							role="alert"
+						>
 							{reviewerNameError}
 						</p>
 					) : null}
@@ -118,7 +122,11 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 						value={text}
 					/>
 					{textError ? (
-						<p className="text-sm text-danger" id="review-text-error">
+						<p
+							className="text-sm text-danger"
+							id="review-text-error"
+							role="alert"
+						>
 							{textError}
 						</p>
 					) : null}
@@ -142,7 +150,7 @@ export function ReviewForm({ gameId }: ReviewFormProps): React.ReactNode {
 					</p>
 				) : null}
 				<button
-					className="label-data w-full rounded-sm bg-action px-4 py-3 text-card transition-colors hover:bg-action-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action disabled:opacity-60"
+					className="label-field w-full rounded-sm bg-action px-4 py-3.5 text-card transition-colors hover:bg-action-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action disabled:opacity-60"
 					disabled={createReviewMutation.isPending}
 					type="submit"
 				>
