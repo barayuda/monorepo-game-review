@@ -500,4 +500,84 @@ describe('halaman detail game', () => {
 		)
 		expect((rating as HTMLInputElement).checked).toBe(true)
 	})
+
+	it('menempelkan kegagalan validasi server ke field yang disebutkan', async () => {
+		// Menangkap regresi ketika issues dari API diparse lalu dibuang, sehingga
+		// pengguna hanya diberi tahu gagal tanpa tahu bagian mana yang salah.
+		stubDetailApi({
+			postResult: {
+				status: 400,
+				body: {
+					code: 'VALIDATION_ERROR',
+					message: 'Validation failed',
+					issues: [
+						{
+							path: ['reviewerName'],
+							message: 'Nama sudah dipakai pemain lain.',
+						},
+					],
+				},
+			},
+		})
+		renderGameDetail()
+		await waitForDetail()
+		const user = userEvent.setup()
+
+		await fillReviewForm(user, {
+			name: 'Nadia',
+			text: 'Ulasan yang valid di sisi klien.',
+			rating: 4,
+		})
+		await user.click(screen.getByRole('button', { name: 'Kirim ulasan' }))
+
+		expect(
+			await screen.findByText('Nama sudah dipakai pemain lain.'),
+		).toBeTruthy()
+		expect(
+			screen
+				.getByRole('textbox', { name: 'Nama reviewer' })
+				.getAttribute('aria-invalid'),
+		).toBe('true')
+	})
+
+	it('menawarkan jalan keluar ketika detail game gagal dimuat', async () => {
+		// Menangkap regresi ketika URL game yang salah menjebak pembaca tanpa aksi apa pun.
+		// Response hanya bisa dibaca sekali, jadi tiap panggilan harus membuat yang baru.
+		let gameRequestCount = 0
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((input: string | URL | Request) => {
+				if (String(input).endsWith('/reviews')) {
+					return Promise.resolve(jsonResponse([]))
+				}
+
+				gameRequestCount += 1
+				return Promise.resolve(
+					gameRequestCount === 1
+						? jsonResponse(
+								{ code: 'GAME_NOT_FOUND', message: 'Game tidak ditemukan.' },
+								404,
+							)
+						: jsonResponse(game),
+				)
+			}),
+		)
+		renderGameDetail()
+		const user = userEvent.setup()
+
+		expect((await screen.findByRole('alert')).textContent).toContain(
+			'Game tidak ditemukan.',
+		)
+		expect(
+			screen
+				.getByRole('link', { name: 'Kembali ke katalog' })
+				.getAttribute('href'),
+		).toBe('/')
+
+		await user.click(screen.getByRole('button', { name: 'Coba lagi' }))
+
+		expect(
+			await screen.findByRole('heading', { name: game.title }),
+		).toBeTruthy()
+	})
 })
