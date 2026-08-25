@@ -1,105 +1,105 @@
 # Game Review
 
-English | [Bahasa Indonesia](README.id.md)
+[English](README.en.md) | Bahasa Indonesia
 
-## Reviewer Quick Start
+## Mulai Cepat untuk Reviewer
 
 ```bash
 docker compose up --build
 ```
 
-Open <http://localhost:8080>. See [Quick Start with Docker](#6-quick-start-with-docker) for prerequisites, service URLs, and shutdown instructions.
+Buka <http://localhost:8080>. Lihat [Mulai Cepat dengan Docker](#6-mulai-cepat-dengan-docker) untuk prasyarat, URL service, dan petunjuk menghentikan aplikasi.
 
-## 1. Overview
+## 1. Ringkasan
 
-Game Review is a small full-stack application for browsing a seeded game catalogue, reading player reviews, and submitting a review with a name, text, and rating from 1 to 5. The frontend and backend are separate TypeScript applications connected through a REST API.
+Game Review adalah aplikasi full-stack kecil untuk menelusuri katalog game berisi data awal, membaca ulasan pemain, dan mengirim ulasan yang terdiri dari nama, teks, serta rating 1 sampai 5. Frontend dan backend merupakan aplikasi TypeScript terpisah yang terhubung melalui REST API.
 
-The repository favors explicit boundaries over framework ceremony: React renders the browser experience, TanStack Query owns server state, Fastify exposes transport endpoints, services contain use-case rules, and replaceable repositories own persistence. Data is intentionally stored in memory, so no external database is required.
+Repositori ini mengutamakan batas tanggung jawab yang eksplisit daripada seremoni framework: React merender pengalaman browser, TanStack Query mengelola server state, Fastify menyediakan endpoint transport, service memuat aturan use case, dan repository yang dapat diganti mengelola persistence. Data sengaja disimpan di memori sehingga tidak memerlukan database eksternal.
 
-## 2. Requirement Coverage
+## 2. Cakupan Persyaratan
 
-| Requirement                       | Implementation                                                                                                    |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Separate frontend and backend     | `apps/web` and `apps/api` communicate only through `/api` REST endpoints.                                         |
-| Game and Review domain models     | Separate modules, services, and repository contracts live under `apps/api/src/modules`.                           |
-| Seed data                         | Three games and three reviews are loaded into fresh in-memory repositories.                                       |
-| Browse and inspect games          | `/` lists games; `/games/:gameId` shows details and reviews.                                                      |
-| Submit validated reviews          | Browser and API validate required fields; the service enforces trimmed lengths and integer ratings from 1 to 5.   |
-| Review visibility without restart | The submitter sees the server-confirmed review immediately; another active detail viewer polls every two seconds. |
-| Automated verification            | Vitest covers backend services/routes and frontend behavior; Playwright covers the critical user flow.            |
-| One-command reviewer environment  | `docker compose up --build` builds and starts the complete application.                                           |
+| Persyaratan                              | Implementasi                                                                                                                  |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Frontend dan backend terpisah            | `apps/web` dan `apps/api` hanya berkomunikasi melalui endpoint REST `/api`.                                                   |
+| Model domain Game dan Review             | Modul, service, dan kontrak repository terpisah berada di `apps/api/src/modules`.                                             |
+| Data awal                                | Tiga game dan tiga ulasan dimuat ke repository in-memory yang baru.                                                           |
+| Menelusuri dan melihat game              | `/` menampilkan daftar game; `/games/:gameId` menampilkan detail dan ulasan.                                                  |
+| Mengirim ulasan tervalidasi              | Browser dan API memvalidasi field wajib; service menegakkan panjang setelah trimming serta rating integer 1 sampai 5.         |
+| Ulasan terlihat tanpa restart            | Pengirim langsung melihat ulasan yang telah dikonfirmasi server; viewer detail aktif lain melakukan polling setiap dua detik. |
+| Verifikasi otomatis                      | Vitest mencakup service/route backend dan perilaku frontend; Playwright mencakup alur pengguna utama.                         |
+| Lingkungan reviewer dengan satu perintah | `docker compose up --build` membangun dan menjalankan aplikasi lengkap.                                                       |
 
-## 3. Screens and Main Flow
+## 3. Layar dan Alur Utama
 
-The catalogue at `/` shows each game's title, platform, and genre, with loading, failure, and retry states. Selecting **Lihat detail** opens `/games/:gameId`, which shows the description, metadata, existing reviews, and an accessible review form.
+Katalog di `/` menampilkan judul, platform, dan genre setiap game beserta status loading, kegagalan, dan percobaan ulang. Memilih **Lihat detail** membuka `/games/:gameId`, yang menampilkan deskripsi, metadata, ulasan yang ada, serta formulir ulasan yang aksesibel.
 
-The main flow is:
+Alur utamanya adalah:
 
-1. Open the catalogue and choose a game.
-2. Read reviews ordered newest first.
-3. Enter a reviewer name and review text, then choose a 1–5 rating using mouse or keyboard.
-4. Submit the form. After the API returns `201`, the new review is inserted at the top of the local query cache without a page reload.
-5. Other active viewers receive the review on the next two-second poll.
+1. Buka katalog dan pilih sebuah game.
+2. Baca ulasan yang diurutkan dari terbaru.
+3. Masukkan nama reviewer dan teks ulasan, lalu pilih rating 1–5 menggunakan mouse atau keyboard.
+4. Kirim formulir. Setelah API mengembalikan `201`, ulasan baru dimasukkan ke bagian teratas query cache lokal tanpa memuat ulang halaman.
+5. Viewer aktif lain menerima ulasan tersebut pada polling dua detik berikutnya.
 
-## 4. Architecture Diagram
+## 4. Diagram Arsitektur
 
 ```mermaid
 flowchart LR
     Browser[Browser]
-    Router[React Router pages]
-    Query[TanStack Query cache]
-    Client[Typed API modules]
-    Proxy[Vite or Nginx /api proxy]
-    Routes[Fastify routes]
-    Services[Game and Review services]
-    Repositories[Repository interfaces]
-    Memory[In-memory adapters and seed data]
-    Contracts[Shared TypeScript DTOs]
+    Router[Halaman React Router]
+    Query[Cache TanStack Query]
+    Client[Modul API bertipe]
+    Proxy[Proxy /api Vite atau Nginx]
+    Routes[Route Fastify]
+    Services[Service Game dan Review]
+    Repositories[Interface repository]
+    Memory[Adapter in-memory dan data awal]
+    Contracts[DTO TypeScript bersama]
 
     Browser --> Router --> Query --> Client --> Proxy --> Routes --> Services --> Repositories --> Memory
-    Contracts -. compile-time contract .-> Client
-    Contracts -. compile-time contract .-> Routes
+    Contracts -. kontrak saat kompilasi .-> Client
+    Contracts -. kontrak saat kompilasi .-> Routes
 ```
 
-HTTP handlers translate transport data and delegate to services. Services validate domain invariants and depend on repository interfaces rather than storage details. `packages/contracts` shares public DTO shapes between browser and API without importing backend business logic.
+Handler HTTP menerjemahkan data transport dan mendelegasikannya ke service. Service memvalidasi invariant domain dan bergantung pada interface repository, bukan detail media penyimpanan. `packages/contracts` membagikan bentuk DTO publik antara browser dan API tanpa mengimpor logika bisnis backend.
 
-## 5. Project Structure
+## 5. Struktur Proyek
 
 ```text
 apps/
-  api/                 Fastify composition, routes, services, repositories, seeds
-    src/modules/       Game and Review domain boundaries
-    test/              Service, repository, server, and HTTP integration tests
-  web/                 React/Vite single-page application
-    src/api/           Relative-URL HTTP client and endpoint modules
-    src/queries/       Query keys, cache policy, polling, and mutations
-    src/pages/         Catalogue and game detail routes
-    src/components/    Game cards, review list, form, and rating control
-    test/              Component and client/query behavior tests
-packages/contracts/    Shared REST DTOs and public error envelope
-e2e/                   Playwright acceptance flow
-compose.yaml           Complete local reviewer environment
+  api/                 Komposisi Fastify, route, service, repository, dan data awal
+    src/modules/       Batas domain Game dan Review
+    test/              Test service, repository, server, dan integrasi HTTP
+  web/                 Single-page application React/Vite
+    src/api/           HTTP client dengan URL relatif dan modul endpoint
+    src/queries/       Query key, kebijakan cache, polling, dan mutation
+    src/pages/         Route katalog dan detail game
+    src/components/    Kartu game, daftar ulasan, formulir, dan kontrol rating
+    test/              Test perilaku komponen, client, dan query
+packages/contracts/    DTO REST bersama dan envelope error publik
+e2e/                   Alur acceptance Playwright
+compose.yaml           Lingkungan reviewer lokal lengkap
 ```
 
-## 6. Quick Start with Docker
+## 6. Mulai Cepat dengan Docker
 
-Prerequisite: Docker with Compose v2.
+Prasyarat: Docker dengan Compose v2.
 
 ```bash
 docker compose up --build
 ```
 
-Open <http://localhost:8080>. The API is also exposed at <http://localhost:3000>, and its liveness endpoint is <http://localhost:3000/health>. Compose waits for the API health check before starting the web service. Stop and remove the containers with:
+Buka <http://localhost:8080>. API juga diekspos di <http://localhost:3000>, sedangkan endpoint liveness tersedia di <http://localhost:3000/health>. Compose menunggu health check API sebelum menjalankan service web. Hentikan dan hapus container dengan:
 
 ```bash
 docker compose down
 ```
 
-The API image runs Node.js 24. The web image builds with Node.js 24 and serves static assets through Nginx, including SPA fallback and `/api` proxying.
+Image API menjalankan Node.js 24. Image web membangun aplikasi dengan Node.js 24 lalu menyajikan aset statis melalui Nginx, termasuk fallback SPA dan proxy `/api`.
 
-## 7. Local Development
+## 7. Pengembangan Lokal
 
-Prerequisites are Node.js 24 and Corepack. The root `packageManager` field pins pnpm 11.19.0.
+Prasyaratnya adalah Node.js 24 dan Corepack. Field `packageManager` di root mem-pin pnpm 11.19.0.
 
 ```bash
 corepack enable
@@ -107,59 +107,59 @@ corepack pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open <http://localhost:5173>. Vite proxies `/api` to the API at `http://localhost:3000`. To run one side independently:
+Buka <http://localhost:5173>. Vite mem-proxy `/api` ke API di `http://localhost:3000`. Untuk menjalankan salah satu sisi secara terpisah:
 
 ```bash
 pnpm --filter @game-review/api dev
 pnpm --filter @game-review/web dev
 ```
 
-Do not put secrets in the repository. The current application needs no `.env` file; `PORT` optionally changes the API port, whose default is `3000`.
+Jangan simpan secret di repositori. Aplikasi saat ini tidak memerlukan file `.env`; `PORT` dapat digunakan untuk mengubah port API yang secara default bernilai `3000`.
 
-## 8. Running Tests
+## 8. Menjalankan Pengujian
 
 ```bash
-pnpm lint       # ESLint plus Prettier check
-pnpm typecheck  # strict TypeScript checks in every workspace package
-pnpm test       # all Vitest service, HTTP, and UI suites
-pnpm build      # production builds for all packages
+pnpm lint       # ESLint dan pemeriksaan Prettier
+pnpm typecheck  # pemeriksaan TypeScript strict di setiap package workspace
+pnpm test       # seluruh suite Vitest untuk service, HTTP, dan UI
+pnpm build      # build production untuk seluruh package
 ```
 
-Run a focused suite while developing:
+Jalankan suite terfokus selama pengembangan:
 
 ```bash
 pnpm --filter @game-review/api test
 pnpm --filter @game-review/web test
 ```
 
-Install Chromium once, then run the browser acceptance test with ports `3000` and `4173` available:
+Instal Chromium satu kali, lalu jalankan acceptance test browser saat port `3000` dan `4173` tersedia:
 
 ```bash
 pnpm test:e2e:install
 pnpm test:e2e
 ```
 
-Playwright starts real API and Vite processes and deliberately refuses to reuse existing servers, preventing a stale process from producing a false positive.
+Playwright menjalankan proses API dan Vite yang sesungguhnya serta sengaja menolak penggunaan kembali server yang sudah berjalan, sehingga proses lama tidak dapat menghasilkan false positive.
 
-### Local Git Hooks and CI
+### Git Hook Lokal dan CI
 
-`pnpm install` installs the Husky hooks through the `prepare` script. Before each commit, lint-staged runs ESLint fixes and Prettier only on supported staged files; unrelated working-tree files are left alone. Before each push, the hook runs `pnpm test` and `pnpm typecheck`. The hooks call `corepack pnpm`, so they use the pnpm version pinned by this repository.
+`pnpm install` memasang hook Husky melalui script `prepare`. Sebelum setiap commit, lint-staged menjalankan perbaikan ESLint dan Prettier hanya pada file staged yang didukung; file working tree lain tidak disentuh. Sebelum setiap push, hook menjalankan `pnpm test` dan `pnpm typecheck`. Hook memanggil `corepack pnpm`, sehingga versi pnpm yang digunakan mengikuti versi yang dipin repositori ini.
 
-Playwright is intentionally excluded from local hooks. Run `pnpm test:e2e` explicitly for release acceptance or in a separate CI workflow. GitHub Actions is the authoritative gate on every push and pull request and runs frozen dependency installation, lint, typecheck, Vitest, and build.
+Playwright sengaja tidak dijalankan oleh hook lokal. Jalankan `pnpm test:e2e` secara eksplisit untuk acceptance release atau melalui workflow CI terpisah. GitHub Actions merupakan gate otoritatif pada setiap push dan pull request serta menjalankan instalasi dependency frozen, lint, typecheck, Vitest, dan build.
 
-In an emergency, `git commit --no-verify` or `git push --no-verify` bypasses local hooks. **Use this only to unblock an exceptional situation: CI and all release gates remain mandatory, and bypassed checks must still be run before integration or release.**
+Dalam keadaan darurat, `git commit --no-verify` atau `git push --no-verify` dapat melewati hook lokal. **Gunakan hanya untuk membuka hambatan dalam situasi luar biasa: CI dan seluruh gate release tetap wajib, dan pemeriksaan yang dilewati tetap harus dijalankan sebelum integrasi atau release.**
 
 ## 9. REST API
 
-| Method | Path                         | Success | Purpose                       |
-| ------ | ---------------------------- | ------- | ----------------------------- |
-| `GET`  | `/health`                    | `200`   | Return `{ "status": "ok" }`.  |
-| `GET`  | `/api/games`                 | `200`   | List seeded games.            |
-| `GET`  | `/api/games/:gameId`         | `200`   | Return one game.              |
-| `GET`  | `/api/games/:gameId/reviews` | `200`   | List reviews newest first.    |
-| `POST` | `/api/games/:gameId/reviews` | `201`   | Validate and create a review. |
+| Method | Path                         | Sukses | Tujuan                                |
+| ------ | ---------------------------- | ------ | ------------------------------------- |
+| `GET`  | `/health`                    | `200`  | Mengembalikan `{ "status": "ok" }`.   |
+| `GET`  | `/api/games`                 | `200`  | Menampilkan game dari data awal.      |
+| `GET`  | `/api/games/:gameId`         | `200`  | Mengembalikan satu game.              |
+| `GET`  | `/api/games/:gameId/reviews` | `200`  | Menampilkan ulasan dari yang terbaru. |
+| `POST` | `/api/games/:gameId/reviews` | `201`  | Memvalidasi dan membuat ulasan.       |
 
-Example request:
+Contoh request:
 
 ```bash
 curl -X POST http://localhost:3000/api/games/elden-ring/reviews \
@@ -167,138 +167,138 @@ curl -X POST http://localhost:3000/api/games/elden-ring/reviews \
   -d '{"reviewerName":"Raka","text":"Exploration feels rewarding.","rating":5}'
 ```
 
-`reviewerName` must contain 1–80 characters after trimming, `text` 1–2000 characters, and `rating` must be an integer from 1 to 5. Unknown game IDs return `GAME_NOT_FOUND`, invalid requests return `VALIDATION_ERROR`, unknown routes return `NOT_FOUND`, and unexpected failures return a sanitized `INTERNAL_ERROR` envelope.
+`reviewerName` harus berisi 1–80 karakter setelah trimming, `text` 1–2000 karakter, dan `rating` harus berupa integer 1 sampai 5. ID game yang tidak dikenal menghasilkan `GAME_NOT_FOUND`, request yang tidak valid menghasilkan `VALIDATION_ERROR`, route yang tidak dikenal menghasilkan `NOT_FOUND`, dan kegagalan tidak terduga menghasilkan envelope `INTERNAL_ERROR` yang telah disanitasi.
 
-## 10. Architectural Decisions
+## 10. Keputusan Arsitektur
 
 ### Node.js 24 LTS vs Bun
 
-- **Use case / requirement:** A reproducible backend runtime that reviewers can install or build in Docker with minimal surprises.
-- **Decision:** Use Node.js 24 LTS, pinned by `engines`, `.nvmrc`, and both Dockerfiles.
-- **Why it fits this project:** This assessment is optimized for evaluator reproducibility, mature Fastify/Node support, conventional test/build behavior, and minimal environment-specific variables.
-- **Alternatives considered:** Bun, which is capable and attractive for its integrated tooling and runtime speed.
-- **Why alternatives were not selected now:** Runtime and install speed offer little practical benefit at this scale compared with keeping the evaluator path conventional. Bun is not considered inferior or unsafe.
-- **When the decision should be revisited:** Bun would be reconsidered where integrated tooling/runtime performance produces measurable benefit in a controlled deployment environment.
+- **Kasus penggunaan / persyaratan:** Runtime backend yang dapat direproduksi dan dapat diinstal atau dibangun reviewer di Docker dengan sesedikit mungkin kejutan.
+- **Keputusan:** Gunakan Node.js 24 LTS yang dipin melalui `engines`, `.nvmrc`, dan kedua Dockerfile.
+- **Mengapa sesuai untuk proyek ini:** Assessment ini dioptimalkan untuk reproduktibilitas evaluator, dukungan Fastify/Node yang matang, perilaku test/build yang konvensional, dan sesedikit mungkin variabel khusus lingkungan.
+- **Alternatif yang dipertimbangkan:** Bun, yang mampu dan menarik berkat tooling terintegrasi serta kecepatan runtime-nya.
+- **Mengapa alternatif belum dipilih:** Kecepatan runtime dan instalasi hanya memberi sedikit manfaat praktis pada skala ini dibanding menjaga alur evaluator tetap konvensional. Bun tidak dianggap lebih buruk atau tidak aman.
+- **Kapan keputusan perlu ditinjau ulang:** Bun akan dipertimbangkan kembali ketika tooling terintegrasi atau performa runtime memberi manfaat terukur dalam lingkungan deployment yang terkendali.
 
 ### React + Vite vs Next.js
 
-- **Use case / requirement:** A responsive client-side catalogue and review flow consuming a separate REST API.
-- **Decision:** Use React with Vite and React Router.
-- **Why it fits this project:** Fast development/build feedback and an explicit SPA/API boundary match the requirements without a server-rendering layer.
-- **Alternatives considered:** Next.js and its routing, server rendering, and full-stack conventions.
-- **Why alternatives were not selected now:** SSR, SEO-specific rendering, and framework server features are not requirements and would duplicate the deliberately separate backend.
-- **When the decision should be revisited:** Revisit if public discovery, server-rendered performance, or React server features become product requirements.
+- **Kasus penggunaan / persyaratan:** Client responsif untuk alur katalog dan ulasan yang mengonsumsi REST API terpisah.
+- **Keputusan:** Gunakan React dengan Vite dan React Router.
+- **Mengapa sesuai untuk proyek ini:** Feedback pengembangan/build yang cepat dan batas SPA/API yang eksplisit sesuai dengan kebutuhan tanpa menambahkan lapisan server rendering.
+- **Alternatif yang dipertimbangkan:** Next.js beserta routing, server rendering, dan konvensi full-stack-nya.
+- **Mengapa alternatif belum dipilih:** SSR, rendering khusus SEO, dan fitur server framework bukan persyaratan serta akan menduplikasi backend yang sengaja dipisahkan.
+- **Kapan keputusan perlu ditinjau ulang:** Tinjau kembali jika visibilitas publik, performa server-rendered, atau fitur React server menjadi persyaratan produk.
 
 ### TanStack Query vs native fetch/custom hooks
 
-- **Use case / requirement:** Coordinate loading, errors, caching, mutation updates, retry behavior, and bounded polling across screens.
-- **Decision:** Put server state in TanStack Query and keep HTTP calls behind small API modules.
-- **Why it fits this project:** Stable query keys, observer-scoped polling, cancellation, retry policy, and post-mutation cache updates are explicit and testable.
-- **Alternatives considered:** Direct `fetch` in components or bespoke fetching hooks.
-- **Why alternatives were not selected now:** They would require recreating cache lifecycle and concurrency behavior that TanStack Query already expresses consistently.
-- **When the decision should be revisited:** Remove it for a static or single-request UI; reconsider cache policy if the application adopts streaming updates or much larger datasets.
+- **Kasus penggunaan / persyaratan:** Mengoordinasikan loading, error, caching, pembaruan mutation, retry, dan polling terbatas lintas layar.
+- **Keputusan:** Tempatkan server state di TanStack Query dan pertahankan pemanggilan HTTP di balik modul API kecil.
+- **Mengapa sesuai untuk proyek ini:** Query key stabil, polling sesuai lifecycle observer, cancellation, kebijakan retry, dan pembaruan cache setelah mutation menjadi eksplisit serta dapat diuji.
+- **Alternatif yang dipertimbangkan:** `fetch` langsung di komponen atau fetching hook buatan sendiri.
+- **Mengapa alternatif belum dipilih:** Keduanya mengharuskan pembuatan ulang lifecycle cache dan perilaku concurrency yang sudah diekspresikan TanStack Query secara konsisten.
+- **Kapan keputusan perlu ditinjau ulang:** Hapus untuk UI statis atau satu request; tinjau ulang kebijakan cache jika aplikasi memakai pembaruan streaming atau dataset yang jauh lebih besar.
 
 ### React local state vs Redux/Zustand
 
-- **Use case / requirement:** Manage review form fields and transient validation messages while sharing server data.
-- **Decision:** Keep transient form/UI state local to React components; keep server data in TanStack Query.
-- **Why it fits this project:** There is no meaningful shared client-state problem. Each form has a clear owner, while query data is already shared through the query cache.
-- **Alternatives considered:** Redux and Zustand were considered but intentionally excluded.
-- **Why alternatives were not selected now:** Adding a store solely to demonstrate familiarity would increase conceptual surface area without solving a requirement.
-- **When the decision should be revisited:** Add a client store when genuinely cross-cutting client-only workflows emerge, such as a multi-screen draft, complex session state, or undo history.
+- **Kasus penggunaan / persyaratan:** Mengelola field formulir ulasan dan pesan validasi sementara sekaligus membagikan data server.
+- **Keputusan:** Pertahankan state formulir/UI sementara secara lokal di komponen React; tempatkan data server di TanStack Query.
+- **Mengapa sesuai untuk proyek ini:** Tidak ada masalah shared client-state yang berarti. Setiap formulir memiliki pemilik yang jelas, sedangkan data query sudah dibagikan melalui query cache.
+- **Alternatif yang dipertimbangkan:** Redux dan Zustand telah dipertimbangkan tetapi sengaja tidak disertakan.
+- **Mengapa alternatif belum dipilih:** Menambahkan store hanya untuk menunjukkan pemahaman akan memperluas permukaan konseptual tanpa menyelesaikan persyaratan apa pun.
+- **Kapan keputusan perlu ditinjau ulang:** Tambahkan client store ketika muncul workflow client-only lintas bagian, seperti draft multiskrin, state sesi yang kompleks, atau riwayat undo.
 
 ### Fastify vs Express/NestJS
 
-- **Use case / requirement:** A small typed REST API with predictable lifecycle, error mapping, injection testing, and low ceremony.
-- **Decision:** Use Fastify with route plugins and separately constructed services/repositories.
-- **Why it fits this project:** Fastify offers a focused plugin model, first-class `inject()` testing, and a straightforward production server boundary.
-- **Alternatives considered:** Express for minimal routing and NestJS for a batteries-included application framework.
-- **Why alternatives were not selected now:** Express would need more local conventions for the same test/error boundaries; NestJS introduces modules and dependency-injection ceremony beyond this application's needs.
-- **When the decision should be revisited:** Consider Express when matching an existing estate, or NestJS when a larger team benefits from its standardized modules and cross-cutting infrastructure.
+- **Kasus penggunaan / persyaratan:** REST API kecil dan bertipe dengan lifecycle yang terprediksi, pemetaan error, pengujian injection, dan sedikit seremoni.
+- **Keputusan:** Gunakan Fastify dengan plugin route serta service/repository yang dikonstruksi terpisah.
+- **Mengapa sesuai untuk proyek ini:** Fastify menyediakan model plugin yang terfokus, pengujian `inject()` kelas satu, dan batas production server yang jelas.
+- **Alternatif yang dipertimbangkan:** Express untuk routing minimal dan NestJS sebagai application framework lengkap.
+- **Mengapa alternatif belum dipilih:** Express memerlukan lebih banyak konvensi lokal untuk batas test/error yang sama; NestJS menambah seremoni modul dan dependency injection melebihi kebutuhan aplikasi ini.
+- **Kapan keputusan perlu ditinjau ulang:** Pertimbangkan Express untuk menyesuaikan ekosistem yang sudah ada, atau NestJS saat tim besar mendapat manfaat dari modul dan infrastruktur lintas bagian yang terstandar.
 
 ### Zod vs Fastify JSON Schema/TypeBox
 
-- **Use case / requirement:** Validate review payloads at runtime and return structured field issues.
-- **Decision:** Parse HTTP input with Zod and repeat critical invariants in the service boundary.
-- **Why it fits this project:** The schema is concise, produces useful paths/messages, and keeps service calls safe even when invoked outside HTTP.
-- **Alternatives considered:** Fastify JSON Schema with TypeBox for schema-driven validation, typing, and possible serialization benefits.
-- **Why alternatives were not selected now:** The API has one write payload, so introducing another schema/type layer would add setup without meaningful payoff.
-- **When the decision should be revisited:** Revisit when OpenAPI generation, many endpoints, response serialization, or schema reuse across clients becomes important.
+- **Kasus penggunaan / persyaratan:** Memvalidasi payload ulasan saat runtime dan mengembalikan masalah field yang terstruktur.
+- **Keputusan:** Parse input HTTP dengan Zod dan ulangi invariant penting di batas service.
+- **Mengapa sesuai untuk proyek ini:** Schema-nya ringkas, menghasilkan path/pesan yang berguna, dan menjaga pemanggilan service tetap aman bahkan dari luar HTTP.
+- **Alternatif yang dipertimbangkan:** Fastify JSON Schema dengan TypeBox untuk validasi, typing, dan kemungkinan manfaat serialisasi berbasis schema.
+- **Mengapa alternatif belum dipilih:** API hanya memiliki satu payload tulis, sehingga lapisan schema/type lain menambah setup tanpa manfaat berarti.
+- **Kapan keputusan perlu ditinjau ulang:** Tinjau kembali ketika generasi OpenAPI, banyak endpoint, serialisasi response, atau penggunaan schema lintas client menjadi penting.
 
-### In-memory repository vs SQLite/PostgreSQL
+### Repository in-memory vs SQLite/PostgreSQL
 
-- **Use case / requirement:** Seed data and accept new reviews without an external database.
-- **Decision:** Use repository interfaces backed by defensive-copy in-memory adapters.
-- **Why it fits this project:** Startup is deterministic, reviewer setup has no migration step, and services remain independent of a future storage technology.
-- **Alternatives considered:** SQLite for local persistence and PostgreSQL for production concurrency and durability.
-- **Why alternatives were not selected now:** External persistence is explicitly out of scope, and either option adds schema, migration, and operational concerns not needed to demonstrate the use cases.
-- **When the decision should be revisited:** Replace the adapters when reviews must survive restarts, multiple API instances must share data, or querying/pagination requirements grow.
+- **Kasus penggunaan / persyaratan:** Menyediakan data awal dan menerima ulasan baru tanpa database eksternal.
+- **Keputusan:** Gunakan interface repository yang didukung adapter in-memory dengan defensive copy.
+- **Mengapa sesuai untuk proyek ini:** Startup deterministik, setup reviewer tidak memerlukan migrasi, dan service tetap independen dari teknologi penyimpanan berikutnya.
+- **Alternatif yang dipertimbangkan:** SQLite untuk persistence lokal dan PostgreSQL untuk concurrency serta durability production.
+- **Mengapa alternatif belum dipilih:** Persistence eksternal secara eksplisit berada di luar scope; keduanya menambahkan schema, migrasi, dan kebutuhan operasional yang tidak diperlukan untuk menunjukkan use case.
+- **Kapan keputusan perlu ditinjau ulang:** Ganti adapter ketika ulasan harus bertahan setelah restart, beberapa instance API harus berbagi data, atau kebutuhan query/pagination bertambah.
 
 ### Vitest + RTL + Fastify inject + Playwright
 
-- **Use case / requirement:** Fast feedback on domain behavior, HTTP contracts, browser behavior, and one critical end-to-end journey.
-- **Decision:** Use Vitest for package tests, React Testing Library for user-visible UI behavior, Fastify `inject()` for HTTP integration, and Playwright for browse-to-submit acceptance.
-- **Why it fits this project:** Most failures are isolated quickly without network processes, while one real-browser path verifies that the assembled applications communicate correctly.
-- **Alternatives considered:** Jest, browser-only testing, or a larger Playwright suite.
-- **Why alternatives were not selected now:** Jest would add a second toolchain; browser-only tests are slower and less diagnostic; broader E2E coverage would duplicate cheaper behavior tests.
-- **When the decision should be revisited:** Expand Playwright for high-risk cross-service journeys, and add coverage thresholds only when the team agrees on useful risk-based targets.
+- **Kasus penggunaan / persyaratan:** Feedback cepat untuk perilaku domain, kontrak HTTP, perilaku browser, dan satu perjalanan end-to-end utama.
+- **Keputusan:** Gunakan Vitest untuk test package, React Testing Library untuk perilaku UI yang terlihat pengguna, Fastify `inject()` untuk integrasi HTTP, dan Playwright untuk acceptance dari menelusuri sampai mengirim ulasan.
+- **Mengapa sesuai untuk proyek ini:** Sebagian besar kegagalan dapat diisolasi cepat tanpa proses jaringan, sedangkan satu alur browser nyata memverifikasi aplikasi yang telah dirakit dapat berkomunikasi dengan benar.
+- **Alternatif yang dipertimbangkan:** Jest, pengujian hanya melalui browser, atau suite Playwright yang lebih besar.
+- **Mengapa alternatif belum dipilih:** Jest menambah toolchain kedua; test browser saja lebih lambat dan kurang diagnostik; cakupan E2E yang luas menduplikasi test perilaku yang lebih murah.
+- **Kapan keputusan perlu ditinjau ulang:** Perluas Playwright untuk perjalanan lintas service berisiko tinggi, dan tambahkan threshold coverage hanya setelah tim menyepakati target berbasis risiko yang bermanfaat.
 
 ### Docker Compose
 
-- **Use case / requirement:** Build and start the complete system with one reviewer command.
-- **Decision:** Build separate multi-stage API and web images and orchestrate them with Docker Compose.
-- **Why it fits this project:** Compose captures runtime versions, networking, API health ordering, Nginx SPA fallback, and same-origin API proxying in a reproducible path.
-- **Alternatives considered:** Host-only scripts, one combined container, or a cluster orchestrator such as Kubernetes.
-- **Why alternatives were not selected now:** Host scripts expose more machine variance, a combined image blurs deployable boundaries, and cluster orchestration is disproportionate for two local services.
-- **When the decision should be revisited:** Adopt deployment-specific orchestration when production scaling, secrets, rolling releases, or managed health policies are required.
+- **Kasus penggunaan / persyaratan:** Membangun dan menjalankan seluruh sistem dengan satu perintah reviewer.
+- **Keputusan:** Bangun image API dan web multi-stage yang terpisah serta orkestrasi keduanya dengan Docker Compose.
+- **Mengapa sesuai untuk proyek ini:** Compose merekam versi runtime, jaringan, urutan berdasarkan health API, fallback SPA Nginx, dan proxy API same-origin dalam alur yang dapat direproduksi.
+- **Alternatif yang dipertimbangkan:** Script host saja, satu container gabungan, atau orkestrator cluster seperti Kubernetes.
+- **Mengapa alternatif belum dipilih:** Script host membuka lebih banyak variasi mesin, image gabungan mengaburkan batas deployment, dan orkestrasi cluster terlalu besar untuk dua service lokal.
+- **Kapan keputusan perlu ditinjau ulang:** Gunakan orkestrasi khusus deployment ketika scaling production, secret, rolling release, atau kebijakan health terkelola dibutuhkan.
 
-### Queues and Redis
+### Antrean dan Redis
 
-- **Use case / requirement:** Create a review through a synchronous request/response flow and make it visible in a single-process, in-memory deployment.
-- **Decision:** Do not add a message queue or Redis for the current scope.
-- **Why it fits this project:** Review creation completes inside one API request. There are no durable background jobs, asynchronous retries, backpressure, cross-instance coordination, or cache-pressure requirements.
-- **Alternatives considered:** Redis for distributed caching, rate limiting, or sessions, and a durable queue for background processing.
-- **Why alternatives were not selected now:** Either would add deployment, failure-mode, monitoring, and data-lifecycle complexity without solving a present requirement.
-- **When the decision should be revisited:** Revisit when the system needs durable background work, retry/backpressure control, multi-instance coordination, distributed caching/rate limiting/sessions, or measured load that justifies the operational cost.
+- **Kasus penggunaan / persyaratan:** Membuat ulasan melalui alur request/response sinkron dan membuatnya terlihat dalam deployment in-memory satu proses.
+- **Keputusan:** Jangan tambahkan message queue atau Redis untuk scope saat ini.
+- **Mengapa sesuai untuk proyek ini:** Pembuatan ulasan selesai dalam satu request API. Tidak ada background job durable, retry asinkron, backpressure, koordinasi antar-instance, atau tekanan cache yang perlu diselesaikan.
+- **Alternatif yang dipertimbangkan:** Redis untuk distributed cache, rate limiting, atau session, serta durable queue untuk pemrosesan background.
+- **Mengapa alternatif belum dipilih:** Keduanya menambah kompleksitas deployment, failure mode, monitoring, dan lifecycle data tanpa menyelesaikan persyaratan saat ini.
+- **Kapan keputusan perlu ditinjau ulang:** Tinjau kembali ketika sistem memerlukan background work durable, kontrol retry/backpressure, koordinasi multi-instance, distributed cache/rate limiting/session, atau beban terukur yang membenarkan biaya operasionalnya.
 
-## 11. Testing Strategy
+## 11. Strategi Pengujian
 
-Development follows red-green-refactor TDD. Service tests protect business rules and repository isolation; Fastify integration tests protect statuses, DTOs, persistence within one process, and sanitized error envelopes. React Testing Library covers visible loading/error/success states, validation, keyboard rating selection, cache races, and polling lifecycle. Playwright verifies catalogue → detail → submit → persisted review against real servers without reloading the page.
+Pengembangan mengikuti TDD red-green-refactor. Test service melindungi aturan bisnis dan isolasi repository; test integrasi Fastify melindungi status, DTO, persistence dalam satu proses, serta envelope error yang disanitasi. React Testing Library mencakup status loading/error/sukses yang terlihat, validasi, pemilihan rating dengan keyboard, race pada cache, dan lifecycle polling. Playwright memverifikasi alur katalog → detail → kirim → ulasan tersimpan terhadap server nyata tanpa memuat ulang halaman.
 
-The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build`. The E2E flow is a separate, higher-cost acceptance check. There is currently no arbitrary line-coverage target; tests are selected around requirements, boundaries, failure paths, and regressions rather than implementation details.
+Release gate utama adalah `pnpm lint`, `pnpm typecheck`, `pnpm test`, dan `pnpm build`. Alur E2E merupakan acceptance check terpisah dengan biaya lebih tinggi. Saat ini tidak ada target line coverage arbitrer; test dipilih berdasarkan persyaratan, batas sistem, jalur kegagalan, dan regresi, bukan detail implementasi.
 
-## 12. Assumptions
+## 12. Asumsi
 
-- This is a single-process assessment application with a small, trusted dataset and no account system.
-- Review visibility for another user may lag by up to two seconds; polling runs only while the detail query has an active observer and does not continue in a background tab.
-- A successful POST is authoritative. The submitter's cache is updated only after the server responds, then later polls reconcile it with server state.
-- Browser requests use relative `/api` paths; Vite handles them locally and Nginx handles them in Docker.
-- Seed records are recreated whenever a new application process starts.
+- Ini adalah aplikasi assessment satu proses dengan dataset kecil dan tepercaya serta tanpa sistem akun.
+- Visibilitas ulasan bagi pengguna lain dapat terlambat sampai dua detik; polling hanya berjalan ketika query detail memiliki observer aktif dan tidak berlanjut di tab background.
+- POST yang sukses merupakan sumber kebenaran. Cache pengirim baru diperbarui setelah server merespons, kemudian polling berikutnya merekonsiliasikannya dengan state server.
+- Request browser memakai path relatif `/api`; Vite menanganinya secara lokal dan Nginx menanganinya di Docker.
+- Data awal dibuat ulang setiap kali proses aplikasi baru dimulai.
 
-## 13. Trade-offs
+## 13. Kompromi
 
-- In-memory persistence gives zero-setup reproducibility but no durability or horizontal scaling.
-- Two-second polling is simple and bounded but creates repeated reads and is not truly real-time.
-- Runtime validation at both route and service boundaries duplicates a few rules, but preserves domain safety for non-HTTP callers.
-- Shared TypeScript DTOs prevent many compile-time mismatches, but they do not generate runtime clients or guarantee that an independently deployed service matches the client version.
-- Immediate cache insertion gives responsive post-submit feedback, but concurrency still requires cancellation and ID-based deduplication to avoid stale GET results replacing the new review.
-- A focused SPA avoids SSR complexity, but it does not optimize public SEO or first response rendering.
+- Persistence in-memory memberi reproduktibilitas tanpa setup, tetapi tidak memiliki durability atau horizontal scaling.
+- Polling dua detik sederhana dan terbatas, tetapi menghasilkan read berulang serta bukan real-time sesungguhnya.
+- Validasi runtime pada batas route dan service menduplikasi beberapa aturan, tetapi menjaga keamanan domain bagi caller non-HTTP.
+- DTO TypeScript bersama mencegah banyak ketidakcocokan saat kompilasi, tetapi tidak menghasilkan runtime client atau menjamin service yang di-deploy terpisah cocok dengan versi client.
+- Penyisipan cache langsung memberi feedback responsif setelah submit, tetapi concurrency tetap membutuhkan cancellation dan deduplikasi berbasis ID agar hasil GET lama tidak menggantikan ulasan baru.
+- SPA yang terfokus menghindari kompleksitas SSR, tetapi tidak mengoptimalkan SEO publik atau rendering response pertama.
 
-## 14. What I Would Improve with More Time
+## 14. Peningkatan Jika Ada Lebih Banyak Waktu
 
-1. Add SQLite or PostgreSQL adapters, migrations, pagination, and integration tests against the selected database.
-2. Replace polling with server-sent events for lower-latency review updates while retaining query-cache reconciliation.
-3. Add authentication, ownership, moderation, rate limiting, and abuse controls before accepting public content.
-4. Generate OpenAPI documentation and a typed client from runtime schemas to strengthen deployment-time contract checks.
-5. Add structured logs, request correlation, metrics, production readiness probes, and error reporting.
-6. Extend Playwright to failure/retry and multi-viewer scenarios, plus automated accessibility and visual-regression checks.
-7. Add deployment smoke tests, scheduled dependency checks, and a separately triggered E2E release workflow when their runtime cost is justified.
+1. Tambahkan adapter SQLite atau PostgreSQL, migrasi, pagination, dan test integrasi terhadap database terpilih.
+2. Ganti polling dengan server-sent events untuk pembaruan ulasan berlatensi lebih rendah sambil mempertahankan rekonsiliasi query cache.
+3. Tambahkan autentikasi, ownership, moderasi, rate limiting, dan kontrol penyalahgunaan sebelum menerima konten publik.
+4. Hasilkan dokumentasi OpenAPI dan typed client dari runtime schema untuk memperkuat pemeriksaan kontrak saat deployment.
+5. Tambahkan structured log, korelasi request, metric, production readiness probe, dan pelaporan error.
+6. Perluas Playwright untuk skenario kegagalan/retry dan multi-viewer, ditambah pemeriksaan aksesibilitas otomatis dan visual regression.
+7. Tambahkan deployment smoke test, pemeriksaan dependency terjadwal, dan workflow release E2E yang dipicu terpisah ketika biaya runtime-nya dapat dibenarkan.
 
-## 15. Known Limitations
+## 15. Keterbatasan yang Diketahui
 
-- Reviews disappear on API restart and are not shared across multiple API processes.
-- There is no authentication, authorization, moderation, edit/delete flow, or duplicate/spam protection.
-- Reviews have no pagination, aggregate score, search, sort controls, or user-configurable refresh behavior.
-- Other viewers receive updates by polling, with up to a two-second foreground delay and no background-tab refresh.
-- The UI intentionally has a compact catalogue and no game artwork, localization system, offline support, or SSR.
-- Docker Compose is a reproducible local environment, not a production deployment specification.
+- Ulasan hilang saat API restart dan tidak dibagikan di antara beberapa proses API.
+- Tidak ada autentikasi, otorisasi, moderasi, alur edit/hapus, atau perlindungan duplikasi/spam.
+- Ulasan tidak memiliki pagination, skor agregat, pencarian, kontrol urutan, atau perilaku refresh yang dapat dikonfigurasi pengguna.
+- Viewer lain menerima pembaruan melalui polling dengan keterlambatan foreground sampai dua detik dan tanpa refresh di tab background.
+- UI sengaja memakai katalog ringkas tanpa artwork game, sistem lokalisasi, dukungan offline, atau SSR.
+- Docker Compose merupakan lingkungan lokal yang dapat direproduksi, bukan spesifikasi deployment production.
