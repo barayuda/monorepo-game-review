@@ -23,6 +23,8 @@ describe('GameService', () => {
 			platform: 'PlayStation 5',
 			developer: 'Team Asobi',
 			releaseYear: 2024,
+			imageUrl:
+				'https://upload.wikimedia.org/wikipedia/en/a/a9/Astro_Bot_cover_art.jpg',
 			awardYear: 2024,
 			awardRank: 1,
 		})
@@ -46,6 +48,8 @@ describe('GameService', () => {
 			platform: 'PlayStation 5',
 			developer: 'FromSoftware',
 			releaseYear: 2022,
+			imageUrl:
+				'https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring_Box_art.jpg',
 			awardYear: 2022,
 			awardRank: 1,
 		})

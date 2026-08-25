@@ -33,6 +33,8 @@ describe('API routes', () => {
 			releaseYear: 2024,
 			awardYear: 2024,
 			awardRank: 1,
+			imageUrl:
+				'https://upload.wikimedia.org/wikipedia/en/a/a9/Astro_Bot_cover_art.jpg',
 		})
 	})
 
@@ -56,6 +58,8 @@ describe('API routes', () => {
 			releaseYear: 2022,
 			awardYear: 2022,
 			awardRank: 1,
+			imageUrl:
+				'https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring_Box_art.jpg',
 		})
 	})
 

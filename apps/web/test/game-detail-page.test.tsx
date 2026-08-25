@@ -141,6 +141,33 @@ describe('halaman detail game', () => {
 		).toBeTruthy()
 	})
 
+	it('menampilkan sampul game pada kepala halaman detail', async () => {
+		// Menangkap regresi ketika halaman detail menjatuhkan sampul yang sudah ada di katalog.
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((input: string | URL | Request) =>
+				Promise.resolve(
+					jsonResponse(
+						String(input).endsWith('/reviews')
+							? []
+							: {
+									...game,
+									imageUrl:
+										'https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring.jpg',
+								},
+					),
+				),
+			),
+		)
+
+		renderGameDetail()
+
+		await screen.findByRole('heading', { name: game.title })
+		expect(document.querySelector('img')?.getAttribute('src')).toBe(
+			'https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring.jpg',
+		)
+	})
+
 	it('menampilkan data game yang dipilih', async () => {
 		// Menangkap regresi ketika rute detail kembali hanya menampilkan parameter URL.
 		stubDetailApi()

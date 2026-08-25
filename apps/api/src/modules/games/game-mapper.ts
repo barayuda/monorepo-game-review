@@ -18,6 +18,7 @@ export const toGameDto = (game: Game): GameDto => ({
 	platform: game.platform,
 	developer: game.developer,
 	releaseYear: game.releaseYear,
+	imageUrl: game.imageUrl,
 	awardYear: game.awardYear,
 	awardRank: game.awardRank,
 })

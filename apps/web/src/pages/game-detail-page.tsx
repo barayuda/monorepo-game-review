@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 
 import { AwardBadge } from '../components/award-badge.js'
+import { GameCover } from '../components/game-cover.js'
 import { ReviewForm } from '../components/review-form.js'
 import { ReviewList } from '../components/review-list.js'
 import { ReviewSummary } from '../components/review-summary.js'
@@ -64,7 +65,8 @@ export function GameDetailPage(): React.ReactNode {
 
 	return (
 		<div className="space-y-10">
-			<div className="rise border-b border-rule pb-10">
+			<div className="rise flex flex-col gap-6 border-b border-rule pb-10 sm:flex-row sm:items-start sm:gap-8">
+				<GameCover imageUrl={game.imageUrl} title={game.title} variant="hero" />
 				<div className="max-w-3xl space-y-4">
 					<p className="label-data text-action">Detail game</p>
 					<h1 className="font-display text-4xl leading-[1.02] font-bold text-balance sm:text-6xl">

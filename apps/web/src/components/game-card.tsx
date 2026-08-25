@@ -2,6 +2,7 @@ import type { GameDto } from '@game-review/contracts'
 import { Link } from 'react-router-dom'
 
 import { AwardBadge } from './award-badge.js'
+import { GameCover } from './game-cover.js'
 
 interface GameCardProps {
 	game: GameDto
@@ -16,7 +17,8 @@ export function GameCard({ game, index = 0 }: GameCardProps): React.ReactNode {
 			className="rise group flex flex-col rounded-md border border-rule bg-card p-6 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-action/50 hover:shadow-[0_12px_28px_-18px_rgb(13_17_23/0.45)]"
 			style={{ '--rise-delay': `${index * 70}ms` } as React.CSSProperties}
 		>
-			<dl className="flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-soft">
+			<GameCover imageUrl={game.imageUrl} title={game.title} />
+			<dl className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-soft">
 				<div>
 					<dt className="sr-only">Platform</dt>
 					<dd className="label-data">{game.platform}</dd>

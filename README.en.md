@@ -20,16 +20,16 @@ The repository favors explicit boundaries over framework ceremony: React renders
 
 ## 2. Requirement Coverage
 
-| Requirement                       | Implementation                                                                                                                                                                 |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Separate frontend and backend     | `apps/web` and `apps/api` communicate only through `/api` REST endpoints.                                                                                                      |
-| Game and Review domain models     | Separate modules, services, and repository contracts live under `apps/api/src/modules`.                                                                                        |
-| Seed data                         | Nineteen Game of the Year winners and nominees with 26 reviews load into fresh in-memory repositories; one game is deliberately left unreviewed so the empty state is visible. |
-| Browse and inspect games          | `/` lists games; `/games/:gameId` shows details and reviews.                                                                                                                   |
-| Submit validated reviews          | Browser and API validate required fields; the service enforces trimmed lengths and integer ratings from 1 to 5.                                                                |
-| Review visibility without restart | The submitter sees the server-confirmed review immediately; another active detail viewer polls every two seconds.                                                              |
-| Automated verification            | Vitest covers backend services/routes and frontend behavior; Playwright covers the critical user flow.                                                                         |
-| One-command reviewer environment  | `docker compose up --build` builds and starts the complete application.                                                                                                        |
+| Requirement                       | Implementation                                                                                                                                                                                                           |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Separate frontend and backend     | `apps/web` and `apps/api` communicate only through `/api` REST endpoints.                                                                                                                                                |
+| Game and Review domain models     | Separate modules, services, and repository contracts live under `apps/api/src/modules`.                                                                                                                                  |
+| Seed data                         | Nineteen Game of the Year winners and nominees with 26 reviews load into fresh in-memory repositories; one game is deliberately left unreviewed so the empty state is visible. Every game carries an official cover URL. |
+| Browse and inspect games          | `/` lists games; `/games/:gameId` shows details and reviews.                                                                                                                                                             |
+| Submit validated reviews          | Browser and API validate required fields; the service enforces trimmed lengths and integer ratings from 1 to 5.                                                                                                          |
+| Review visibility without restart | The submitter sees the server-confirmed review immediately; another active detail viewer polls every two seconds.                                                                                                        |
+| Automated verification            | Vitest covers backend services/routes and frontend behavior; Playwright covers the critical user flow.                                                                                                                   |
+| One-command reviewer environment  | `docker compose up --build` builds and starts the complete application.                                                                                                                                                  |
 
 ## 3. Screens and Main Flow
 
@@ -293,6 +293,7 @@ The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm 
 - Shared TypeScript DTOs prevent many compile-time mismatches, but they do not generate runtime clients or guarantee that an independently deployed service matches the client version.
 - Immediate cache insertion gives responsive post-submit feedback, but concurrency still requires cancellation and ID-based deduplication to avoid stale GET results replacing the new review.
 - A focused SPA avoids SSR complexity, but it does not optimize public SEO or first response rendering.
+- Game covers are linked from Wikimedia rather than copied into the repository: reviewers download no binaries and the repository stays light, but the catalogue now depends on a third-party host that must be named in `img-src`. A test binds the seed data to the CSP directive so the two cannot drift apart unnoticed.
 
 ## 14. What I Would Improve with More Time
 
@@ -311,5 +312,6 @@ The primary release gates are `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm 
 - There is no authentication, authorization, moderation, edit/delete flow, or duplicate/spam protection.
 - Reviews have no pagination, aggregate score, search, sort controls, or user-configurable refresh behavior.
 - Other viewers receive updates by polling, with up to a two-second foreground delay and no background-tab refresh.
-- The UI intentionally has a compact catalogue and no game artwork, localization system, offline support, or SSR.
+- The UI intentionally has a compact catalogue and no localization system, offline support, or SSR.
+- Covers load from an external host, so without outbound connectivity every card falls back to a marker showing the title initial. The application stays fully functional.
 - Docker Compose is a reproducible local environment, not a production deployment specification.

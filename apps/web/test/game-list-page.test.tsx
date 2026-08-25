@@ -217,6 +217,38 @@ describe('halaman daftar game', () => {
 		expect(screen.queryByText(/GOTY/)).toBeNull()
 	})
 
+	it('menampilkan sampul game yang dikirim katalog', async () => {
+		// Menangkap regresi ketika kartu mengabaikan sampul dan katalog kembali polos.
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue(
+				new Response(
+					JSON.stringify([
+						{
+							id: 'laut-senja',
+							title: 'Laut Senja',
+							description: 'Petualangan di pulau terapung.',
+							genre: 'Adventure',
+							platform: 'PC',
+							developer: 'Studio Laut',
+							releaseYear: 2024,
+							imageUrl:
+								'https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring.jpg',
+						},
+					]),
+					{ status: 200, headers: { 'content-type': 'application/json' } },
+				),
+			),
+		)
+
+		renderGameList()
+
+		await screen.findByRole('heading', { name: 'Laut Senja' })
+		expect(document.querySelector('img')?.getAttribute('src')).toBe(
+			'https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring.jpg',
+		)
+	})
+
 	it('tetap memberi pesan yang terbaca ketika kegagalan bukan Error', async () => {
 		// Menangkap regresi ketika penolakan non-Error dirender sebagai [object Object].
 		vi.stubGlobal(

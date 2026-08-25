@@ -9,6 +9,7 @@ export interface Game {
 	platform: string
 	developer: string
 	releaseYear: number
+	imageUrl?: string
 	awardYear?: number
 	awardRank?: number
 }

@@ -26,16 +26,16 @@ Prinsipnya sederhana: batas tanggung jawab yang jelas lebih berharga daripada se
 
 Semua yang diminta, beserta tempat kamu bisa mengeceknya sendiri:
 
-| Persyaratan                              | Implementasi                                                                                                                                                                   |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Frontend dan backend terpisah            | `apps/web` dan `apps/api` hanya berkomunikasi melalui endpoint REST `/api`.                                                                                                    |
-| Model domain Game dan Review             | Modul, service, dan kontrak repository terpisah berada di `apps/api/src/modules`.                                                                                              |
-| Data awal                                | Sembilan belas game peraih dan nominasi Game of the Year beserta 26 ulasan dimuat ke repository in-memory yang baru; satu game sengaja tanpa ulasan agar empty state terlihat. |
-| Menelusuri dan melihat game              | `/` menampilkan daftar game; `/games/:gameId` menampilkan detail dan ulasan.                                                                                                   |
-| Mengirim ulasan tervalidasi              | Browser dan API memvalidasi field wajib; service menegakkan panjang setelah trimming serta rating integer 1 sampai 5.                                                          |
-| Ulasan terlihat tanpa restart            | Pengirim langsung melihat ulasan yang sudah dikonfirmasi server; viewer detail aktif lain menyusul lewat polling dua detik.                                                    |
-| Verifikasi otomatis                      | Vitest mencakup service/route backend dan perilaku frontend; Playwright mencakup alur pengguna utama.                                                                          |
-| Lingkungan reviewer dengan satu perintah | `docker compose up --build` membangun dan menjalankan aplikasi lengkap.                                                                                                        |
+| Persyaratan                              | Implementasi                                                                                                                                                                                                         |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend dan backend terpisah            | `apps/web` dan `apps/api` hanya berkomunikasi melalui endpoint REST `/api`.                                                                                                                                          |
+| Model domain Game dan Review             | Modul, service, dan kontrak repository terpisah berada di `apps/api/src/modules`.                                                                                                                                    |
+| Data awal                                | Sembilan belas game peraih dan nominasi Game of the Year beserta 26 ulasan dimuat ke repository in-memory yang baru; satu game sengaja tanpa ulasan agar empty state terlihat. Setiap game membawa URL sampul resmi. |
+| Menelusuri dan melihat game              | `/` menampilkan daftar game; `/games/:gameId` menampilkan detail dan ulasan.                                                                                                                                         |
+| Mengirim ulasan tervalidasi              | Browser dan API memvalidasi field wajib; service menegakkan panjang setelah trimming serta rating integer 1 sampai 5.                                                                                                |
+| Ulasan terlihat tanpa restart            | Pengirim langsung melihat ulasan yang sudah dikonfirmasi server; viewer detail aktif lain menyusul lewat polling dua detik.                                                                                          |
+| Verifikasi otomatis                      | Vitest mencakup service/route backend dan perilaku frontend; Playwright mencakup alur pengguna utama.                                                                                                                |
+| Lingkungan reviewer dengan satu perintah | `docker compose up --build` membangun dan menjalankan aplikasi lengkap.                                                                                                                                              |
 
 ## 3. Layar dan Alur Utama
 
@@ -311,6 +311,7 @@ Tidak ada keputusan yang gratis. Ini harga yang dibayar:
 - DTO TypeScript bersama mencegah banyak ketidakcocokan saat kompilasi, tapi tidak menghasilkan runtime client dan tidak menjamin service yang di-deploy terpisah cocok dengan versi client.
 - Penyisipan cache langsung membuat feedback pasca-submit terasa responsif, tapi concurrency tetap butuh cancellation dan deduplikasi berbasis ID supaya hasil GET lama tidak menimpa ulasan baru.
 - SPA yang fokus menghindari kompleksitas SSR, tapi tidak mengoptimalkan SEO publik maupun rendering response pertama.
+- Sampul game ditautkan langsung ke Wikimedia, bukan disalin ke repositori: reviewer tidak perlu mengunduh biner dan repositorinya tetap ringan, tapi katalog jadi bergantung pada host pihak ketiga dan host itu harus disebut di `img-src`. Satu test mengikat data awal ke direktif CSP supaya keduanya tidak bisa berbeda diam-diam.
 
 ## 14. Peningkatan Jika Ada Lebih Banyak Waktu
 
@@ -333,5 +334,6 @@ Terakhir, dan ini penting: berikut hal-hal yang memang belum ada, supaya tidak a
 - Tidak ada autentikasi, otorisasi, moderasi, alur edit/hapus, atau perlindungan duplikasi/spam.
 - Ulasan belum punya pagination, skor agregat, pencarian, kontrol urutan, atau perilaku refresh yang bisa diatur pengguna.
 - Viewer lain menerima pembaruan lewat polling, dengan keterlambatan foreground sampai dua detik dan tanpa refresh di tab background.
-- UI-nya sengaja ringkas: tanpa artwork game, sistem lokalisasi, dukungan offline, atau SSR.
+- UI-nya sengaja ringkas: tanpa sistem lokalisasi, dukungan offline, atau SSR.
+- Sampul dimuat dari host eksternal, jadi tanpa koneksi keluar setiap kartu turun ke penanda cadangan berisi inisial judul. Aplikasinya tetap berfungsi penuh.
 - Docker Compose di sini adalah lingkungan lokal yang bisa direproduksi, bukan spesifikasi deployment production.

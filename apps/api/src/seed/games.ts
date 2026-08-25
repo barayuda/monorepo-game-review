@@ -18,6 +18,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 5',
 		developer: 'Team Asobi',
 		releaseYear: 2024,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/a/a9/Astro_Bot_cover_art.jpg',
 		awardYear: 2024,
 		awardRank: 1,
 	},
@@ -30,6 +32,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PC',
 		developer: 'LocalThunk',
 		releaseYear: 2024,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/8/89/Balatro_cover.jpg',
 		awardYear: 2024,
 		awardRank: 2,
 	},
@@ -42,6 +46,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 5',
 		developer: 'Square Enix',
 		releaseYear: 2024,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/7/75/Boxart_for_Final_Fantasy_VII_Rebirth.png',
 		awardYear: 2024,
 		awardRank: 3,
 	},
@@ -54,6 +60,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PC',
 		developer: 'Larian Studios',
 		releaseYear: 2023,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/1/12/Baldur%27s_Gate_3_cover_art.jpg',
 		awardYear: 2023,
 		awardRank: 1,
 	},
@@ -66,6 +74,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'Nintendo Switch',
 		developer: 'Nintendo',
 		releaseYear: 2023,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/f/fb/The_Legend_of_Zelda_Tears_of_the_Kingdom_cover.jpg',
 		awardYear: 2023,
 		awardRank: 2,
 	},
@@ -78,6 +88,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PC',
 		developer: 'Remedy Entertainment',
 		releaseYear: 2023,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/e/ed/Alan_Wake_2_box_art.jpg',
 		awardYear: 2023,
 		awardRank: 3,
 	},
@@ -89,6 +101,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 5',
 		developer: 'FromSoftware',
 		releaseYear: 2022,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring_Box_art.jpg',
 		awardYear: 2022,
 		awardRank: 1,
 	},
@@ -101,6 +115,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 5',
 		developer: 'Santa Monica Studio',
 		releaseYear: 2022,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/e/ee/God_of_War_Ragnar%C3%B6k_cover.jpg',
 		awardYear: 2022,
 		awardRank: 2,
 	},
@@ -113,6 +129,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 5',
 		developer: 'BlueTwelve Studio',
 		releaseYear: 2022,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/f/f1/Stray_cover_art.jpg',
 		awardYear: 2022,
 		awardRank: 3,
 	},
@@ -125,6 +143,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PC',
 		developer: 'Hazelight Studios',
 		releaseYear: 2021,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/a/aa/It_Takes_Two_cover_art.png',
 		awardYear: 2021,
 		awardRank: 1,
 	},
@@ -137,6 +157,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 5',
 		developer: 'Arkane Lyon',
 		releaseYear: 2021,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/c/cb/Deathloop_cover_art.jpg',
 		awardYear: 2021,
 		awardRank: 2,
 	},
@@ -149,6 +171,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'Xbox Series X|S',
 		developer: 'Double Fine Productions',
 		releaseYear: 2021,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/2/23/Psychonauts_2_cover.png',
 		awardYear: 2021,
 		awardRank: 3,
 	},
@@ -161,6 +185,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 4',
 		developer: 'Naughty Dog',
 		releaseYear: 2020,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/4/4f/TLOU_P2_Box_Art_2.png',
 		awardYear: 2020,
 		awardRank: 1,
 	},
@@ -173,6 +199,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'Nintendo Switch',
 		developer: 'Supergiant Games',
 		releaseYear: 2020,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/c/cc/Hades_cover_art.jpg',
 		awardYear: 2020,
 		awardRank: 2,
 	},
@@ -185,6 +213,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 4',
 		developer: 'Sucker Punch Productions',
 		releaseYear: 2020,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/b/b6/Ghost_of_Tsushima.jpg',
 		awardYear: 2020,
 		awardRank: 3,
 	},
@@ -197,6 +227,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PlayStation 4',
 		developer: 'Santa Monica Studio',
 		releaseYear: 2018,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/a/a7/God_of_War_4_cover.jpg',
 		awardYear: 2018,
 		awardRank: 1,
 	},
@@ -209,6 +241,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'Nintendo Switch',
 		developer: 'Nintendo',
 		releaseYear: 2017,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/c/c6/The_Legend_of_Zelda_Breath_of_the_Wild.jpg',
 		awardYear: 2017,
 		awardRank: 1,
 	},
@@ -221,6 +255,8 @@ export const seededGames: readonly Game[] = [
 		platform: 'PC',
 		developer: 'CD Projekt Red',
 		releaseYear: 2015,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/0/0c/Witcher_3_cover_art.jpg',
 		awardYear: 2015,
 		awardRank: 1,
 	},
@@ -233,5 +269,7 @@ export const seededGames: readonly Game[] = [
 		platform: 'PC',
 		developer: 'ConcernedApe',
 		releaseYear: 2016,
+		imageUrl:
+			'https://upload.wikimedia.org/wikipedia/en/f/fd/Logo_of_Stardew_Valley.png',
 	},
 ]

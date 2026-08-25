@@ -5,6 +5,9 @@
  * Year. Rank 1 berarti pemenang tahun itu; rank 2 dan 3 adalah nominasi pada
  * tahun yang sama, diurutkan oleh katalog ini karena The Game Awards tidak
  * mengumumkan juara dua dan tiga.
+ *
+ * `imageUrl` opsional: katalog boleh memuat game tanpa sampul, dan client
+ * membedakan kondisi itu dari sampul yang gagal dimuat.
  */
 export interface GameDto {
 	id: string
@@ -14,6 +17,7 @@ export interface GameDto {
 	platform: string
 	developer: string
 	releaseYear: number
+	imageUrl?: string
 	awardYear?: number
 	awardRank?: number
 }

@@ -21,6 +21,7 @@ describe('DTO mappers', () => {
 			releaseYear: 2022,
 			awardYear: 2022,
 			awardRank: 1,
+			imageUrl: 'https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring.jpg',
 			acquisitionCost: 4200,
 			moderationNote: 'internal only',
 		} as Game
@@ -34,6 +35,7 @@ describe('DTO mappers', () => {
 			'developer',
 			'genre',
 			'id',
+			'imageUrl',
 			'platform',
 			'releaseYear',
 			'title',
@@ -58,6 +60,24 @@ describe('DTO mappers', () => {
 		// undefined tidak ikut terserialisasi, jadi client tidak menerima award palsu.
 		expect(JSON.parse(JSON.stringify(dto))).not.toHaveProperty('awardYear')
 		expect(JSON.parse(JSON.stringify(dto))).not.toHaveProperty('awardRank')
+	})
+
+	it('omits an absent cover image instead of inventing one', () => {
+		const gameWithoutCover = {
+			id: 'stardew-valley',
+			title: 'Stardew Valley',
+			description: 'Memulai hidup baru di sebuah pertanian.',
+			genre: 'Simulation',
+			platform: 'PC',
+			developer: 'ConcernedApe',
+			releaseYear: 2016,
+		} as Game
+
+		const dto = toGameDto(gameWithoutCover)
+
+		// Client membedakan "tidak punya sampul" dari "sampul gagal dimuat", jadi
+		// field-nya harus benar-benar hilang, bukan berisi string kosong.
+		expect(JSON.parse(JSON.stringify(dto))).not.toHaveProperty('imageUrl')
 	})
 
 	it('does not copy internal review fields onto the public DTO', () => {
