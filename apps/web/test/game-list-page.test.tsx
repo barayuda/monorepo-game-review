@@ -157,4 +157,63 @@ describe('halaman daftar game', () => {
 		})
 		expect(detailLink.getAttribute('href')).toBe('/games/pulau-cerah')
 	})
+
+	it('menampilkan studio, tahun rilis, dan peringkat penghargaan pada kartu', async () => {
+		// Menangkap regresi ketika field tambahan game hilang dari kartu dan pembaca kehilangan konteks pilihannya.
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue(
+				new Response(
+					JSON.stringify([
+						{
+							id: 'laut-senja',
+							title: 'Laut Senja',
+							description: 'Petualangan di pulau terapung.',
+							genre: 'Adventure',
+							platform: 'PC',
+							developer: 'Studio Laut',
+							releaseYear: 2024,
+							awardYear: 2024,
+							awardRank: 1,
+						},
+					]),
+					{ status: 200, headers: { 'content-type': 'application/json' } },
+				),
+			),
+		)
+
+		renderGameList()
+
+		expect(await screen.findByText('Studio Laut')).toBeTruthy()
+		expect(screen.getByText('2024')).toBeTruthy()
+		expect(screen.getByText(/GOTY 2024/)).toBeTruthy()
+	})
+
+	it('tidak menempelkan penghargaan pada game yang tidak pernah menerimanya', async () => {
+		// Menangkap regresi ketika badge dirender tanpa data award dan mengarang penghargaan.
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue(
+				new Response(
+					JSON.stringify([
+						{
+							id: 'pulau-cerah',
+							title: 'Pulau Cerah',
+							description: 'Eksplorasi pulau.',
+							genre: 'Simulation',
+							platform: 'PC',
+							developer: 'Studio Pulau',
+							releaseYear: 2016,
+						},
+					]),
+					{ status: 200, headers: { 'content-type': 'application/json' } },
+				),
+			),
+		)
+
+		renderGameList()
+
+		expect(await screen.findByText('Studio Pulau')).toBeTruthy()
+		expect(screen.queryByText(/GOTY/)).toBeNull()
+	})
 })

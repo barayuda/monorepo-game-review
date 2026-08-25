@@ -30,4 +30,17 @@ describe('AppRouter', () => {
 
 		expect(html).toContain('Memuat detail game')
 	})
+
+	it('menjelaskan URL yang tidak dikenal alih-alih layar kosong', () => {
+		// Menangkap regresi ketika rute tak terdaftar merender shell tanpa isi apa pun.
+		const html = renderToStaticMarkup(
+			<QueryClientProvider client={createAppQueryClient()}>
+				<MemoryRouter initialEntries={['/rute/yang/tidak/ada']}>
+					<AppRouter />
+				</MemoryRouter>
+			</QueryClientProvider>,
+		)
+
+		expect(html).toContain('Halaman tidak ditemukan')
+	})
 })

@@ -50,4 +50,24 @@ describe('httpClient', () => {
 		})
 		await expect(request).rejects.toBeInstanceOf(ApiClientError)
 	})
+
+	it('memberi pesan yang bisa dibaca ketika server membalas bukan JSON', async () => {
+		// Menangkap regresi ketika 502 dari proxy membocorkan galat parsing mentah ke pengguna.
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue(
+				new Response('<html><body>502 Bad Gateway</body></html>', {
+					status: 502,
+					headers: { 'content-type': 'text/html' },
+				}),
+			),
+		)
+
+		await expect(httpClient.get('/api/games')).rejects.toMatchObject({
+			name: 'ApiClientError',
+			status: 502,
+			code: 'UNKNOWN_ERROR',
+			message: 'Permintaan ke server gagal.',
+		})
+	})
 })
