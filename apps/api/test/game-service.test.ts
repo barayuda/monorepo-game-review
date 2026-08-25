@@ -80,8 +80,6 @@ describe('InMemoryGameRepository', () => {
 				platform: 'PlayStation 5',
 				developer: 'FromSoftware',
 				releaseYear: 2022,
-				developer: 'FromSoftware',
-				releaseYear: 2022,
 			},
 		]
 		const repository = new InMemoryGameRepository(games)
@@ -101,8 +99,6 @@ describe('InMemoryGameRepository', () => {
 				description: 'Explore the Lands Between.',
 				genre: 'Action RPG',
 				platform: 'PlayStation 5',
-				developer: 'FromSoftware',
-				releaseYear: 2022,
 				developer: 'FromSoftware',
 				releaseYear: 2022,
 			},

@@ -1,6 +1,7 @@
 import type { GameDto } from '@game-review/contracts'
 import type { FastifyPluginAsync } from 'fastify'
 
+import { toGameDto } from './game-mapper.js'
 import type { GameService } from './game-service.js'
 
 /**
@@ -9,12 +10,14 @@ import type { GameService } from './game-service.js'
  */
 export const gameRoutes = (gameService: GameService): FastifyPluginAsync => {
 	return async (app) => {
-		app.get('/api/games', () => gameService.listGames() satisfies GameDto[])
+		app.get('/api/games', (): GameDto[] =>
+			gameService.listGames().map(toGameDto),
+		)
 
 		app.get<{ Params: { gameId: string } }>(
 			'/api/games/:gameId',
-			(request) =>
-				gameService.getGameById(request.params.gameId) satisfies GameDto,
+			(request): GameDto =>
+				toGameDto(gameService.getGameById(request.params.gameId)),
 		)
 	}
 }

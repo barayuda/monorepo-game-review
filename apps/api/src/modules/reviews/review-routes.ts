@@ -2,6 +2,7 @@ import type { CreateReviewRequestDto, ReviewDto } from '@game-review/contracts'
 import type { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 
+import { toReviewDto } from './review-mapper.js'
 import type { ReviewService } from './review-service.js'
 
 /**
@@ -24,8 +25,8 @@ export const reviewRoutes = (
 	return async (app) => {
 		app.get<{ Params: { gameId: string } }>(
 			'/api/games/:gameId/reviews',
-			(request) =>
-				reviewService.listReviews(request.params.gameId) satisfies ReviewDto[],
+			(request): ReviewDto[] =>
+				reviewService.listReviews(request.params.gameId).map(toReviewDto),
 		)
 
 		app.post<{ Params: { gameId: string }; Body: unknown }>(
@@ -37,7 +38,7 @@ export const reviewRoutes = (
 					input satisfies CreateReviewRequestDto,
 				)
 
-				return reply.status(201).send(review satisfies ReviewDto)
+				return reply.status(201).send(toReviewDto(review))
 			},
 		)
 	}

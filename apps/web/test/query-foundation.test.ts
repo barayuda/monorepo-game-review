@@ -28,6 +28,10 @@ describe('query foundation', () => {
 		const client = createAppQueryClient()
 		const defaults = client.getDefaultOptions().queries
 
+		if (!defaults) {
+			throw new Error('Expected the app query client to define query defaults')
+		}
+
 		expect(shouldRetryQuery(0, new Error('network unavailable'))).toBe(true)
 		expect(shouldRetryQuery(2, new Error('network unavailable'))).toBe(false)
 		expect(defaults.staleTime).toBe(30_000)
