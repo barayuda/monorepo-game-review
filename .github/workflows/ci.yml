@@ -50,6 +50,16 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Font yang diinline sebagai data: URI diblokir oleh `font-src 'self'`
+      # pada CSP yang disajikan Nginx, dan kegagalannya hanya terlihat di
+      # console browser. Artefak build diperiksa langsung agar tidak terulang.
+      - name: No CSP-blocked inline fonts
+        run: |
+          if grep -rq 'data:font' apps/web/dist/assets/*.css; then
+            echo "A font was inlined as a data: URI, which the Nginx CSP blocks." >&2
+            exit 1
+          fi
+
   e2e:
     name: End-to-end acceptance
     runs-on: ubuntu-latest
